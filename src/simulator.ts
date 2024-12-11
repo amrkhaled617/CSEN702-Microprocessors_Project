@@ -225,6 +225,8 @@ function getReservationStationsForInstruction(
     [
       InstructionType.ADD_D,
       InstructionType.SUB_D,
+      InstructionType.ADD_S,
+      InstructionType.SUB_S,
       InstructionType.ADD_DI,
       InstructionType.SUB_DI,
       InstructionType.ADDI,
@@ -297,10 +299,12 @@ function executeStage(newState: SystemState) {
       switch (rs.op) {
         case InstructionType.ADD_D:
         case InstructionType.ADD_DI:
+        case InstructionType.ADD_S:
           rs.result = rs.vj + rs.vk;
           break;
         case InstructionType.SUB_D:
         case InstructionType.SUB_DI:
+        case InstructionType.SUB_S:
           rs.result = rs.vj - rs.vk;
           break;
         case InstructionType.ADDI:
@@ -318,7 +322,7 @@ function executeStage(newState: SystemState) {
         case InstructionType.DIV_D:
         case InstructionType.DIV_DI:
           if (rs.vk === 0) {
-            alert("Bt3ml eh?!!!! M3dtsh 3la HAny El-Sharkawy wala eh?!");
+            alert("rs.vk is 0");
           }
           rs.result = rs.vj / rs.vk;
           break;

@@ -33,6 +33,9 @@ function App() {
     numOfFPRegisters: 32,
     numOfIntRegisters: 32,
     latencies: {
+      [InstructionType.ADD_S]: 2,
+      [InstructionType.SUB_S]: 2,
+
       [InstructionType.ADD_D]: 2,
       [InstructionType.SUB_D]: 2,
       [InstructionType.MUL_D]: 4,
