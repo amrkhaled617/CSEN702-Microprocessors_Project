@@ -48,6 +48,8 @@ function App() {
 
       [InstructionType.ADDI]: 1,
       [InstructionType.BNEZ]: 1,
+      [InstructionType.BEQ]: 1,
+      [InstructionType.BNE]: 1,
       
       [InstructionType.ADD_DI]: 2,
       [InstructionType.SUB_DI]: 2,
