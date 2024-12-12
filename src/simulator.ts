@@ -160,10 +160,10 @@ function issueStage(newState: SystemState) {
   rs.busy = true;
   rs.historyIndex = newState.instructionHistory.length - 1;
 
-  if (instructionType === InstructionType.L_D) {
+  if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_DF) {
     const typedRS = reservationStations![index] as LoadBufferEntry;
     typedRS.address = Number(source1);
-  } else if (instructionType == InstructionType.S_D) {
+  } else if (instructionType == InstructionType.S_D || instructionType == InstructionType.S_DF) {
     const typedRS = reservationStations![index] as StoreBufferEntry;
     typedRS.address = Number(source1);
 
@@ -250,12 +250,12 @@ function getReservationStationsForInstruction(
       reservationStations: newState.mulReservationStations,
       prefix: "M",
     };
-  } else if (instructionType === InstructionType.L_D) {
+  } else if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_DF) {
     return {
       reservationStations: newState.loadBuffers,
       prefix: "L",
     };
-  } else if (instructionType === InstructionType.S_D) {
+  } else if (instructionType === InstructionType.S_D || instructionType === InstructionType.S_DF) {
     return {
       reservationStations: newState.storeBuffers,
       prefix: "S",

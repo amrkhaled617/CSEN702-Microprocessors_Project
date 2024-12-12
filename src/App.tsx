@@ -42,6 +42,8 @@ function App() {
       [InstructionType.DIV_D]: 8,
       [InstructionType.L_D]: 2,
       [InstructionType.S_D]: 2,
+      [InstructionType.L_DF]: 2,
+      [InstructionType.S_DF]: 2,
       [InstructionType.SUBI]: 1,
 
       [InstructionType.ADDI]: 1,

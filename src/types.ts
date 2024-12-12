@@ -80,8 +80,11 @@ export enum InstructionType {
   MUL_DI = "MUL.DI",
   DIV_DI = "DIV.DI",
   
-  L_D = "L.D",
-  S_D = "S.D",
+  L_D = "LD",
+  S_D = "SD",
+
+  L_DF = "L.D",
+  S_DF = "S.D",
 
   ADDI = "ADDI",
   SUBI = "SUBI",
