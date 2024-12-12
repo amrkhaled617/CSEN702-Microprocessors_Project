@@ -86,6 +86,10 @@ export enum InstructionType {
   L_DF = "L.D",
   S_DF = "S.D",
 
+  
+  L_DS = "L.S",
+  S_DS = "S.S",
+
   ADDI = "ADDI",
   SUBI = "SUBI",
   BNE = "BNE",

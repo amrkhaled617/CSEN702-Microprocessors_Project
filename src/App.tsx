@@ -43,14 +43,16 @@ function App() {
       [InstructionType.L_D]: 2,
       [InstructionType.S_D]: 2,
       [InstructionType.L_DF]: 2,
+      [InstructionType.L_DS]: 2,
       [InstructionType.S_DF]: 2,
+      [InstructionType.S_DS]: 2,
       [InstructionType.SUBI]: 1,
 
       [InstructionType.ADDI]: 1,
       [InstructionType.BNEZ]: 1,
       [InstructionType.BEQ]: 1,
       [InstructionType.BNE]: 1,
-      
+
       [InstructionType.ADD_DI]: 2,
       [InstructionType.SUB_DI]: 2,
       [InstructionType.MUL_DI]: 4,

@@ -160,10 +160,10 @@ function issueStage(newState: SystemState) {
   rs.busy = true;
   rs.historyIndex = newState.instructionHistory.length - 1;
 
-  if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_DF) {
+  if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_DF || instructionType === InstructionType.L_DS) {
     const typedRS = reservationStations![index] as LoadBufferEntry;
     typedRS.address = Number(source1);
-  } else if (instructionType == InstructionType.S_D || instructionType == InstructionType.S_DF) {
+  } else if (instructionType == InstructionType.S_D || instructionType == InstructionType.S_DF || instructionType == InstructionType.S_DS) {
     const typedRS = reservationStations![index] as StoreBufferEntry;
     typedRS.address = Number(source1);
 
@@ -254,12 +254,12 @@ function getReservationStationsForInstruction(
       reservationStations: newState.mulReservationStations,
       prefix: "M",
     };
-  } else if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_DF) {
+  } else if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_DF || instructionType === InstructionType.L_DS) {
     return {
       reservationStations: newState.loadBuffers,
       prefix: "L",
     };
-  } else if (instructionType === InstructionType.S_D || instructionType === InstructionType.S_DF) {
+  } else if (instructionType === InstructionType.S_D || instructionType === InstructionType.S_DF  || instructionType === InstructionType.S_DS) {
     return {
       reservationStations: newState.storeBuffers,
       prefix: "S",
@@ -372,7 +372,7 @@ function executeStage(newState: SystemState) {
     if (newState.currentClock == issuedAt) continue;
 
     const latency = newState.latencies[InstructionType.L_D];
-
+    
     if (rs.timeRemaining == null) {
       rs.timeRemaining = latency;
       newState.instructionHistory[rs.historyIndex!].startExecutionAt =
