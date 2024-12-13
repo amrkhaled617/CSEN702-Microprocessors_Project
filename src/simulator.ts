@@ -126,7 +126,6 @@ export function nextSystemState(systemState: SystemState): SystemState {
 
   return newState;
 }
-
 function issueStage(newState: SystemState) {
   if (newState.nextIssue >= newState.instructions.length) return;
   if (hasBranch(newState)) return;
@@ -160,21 +159,37 @@ function issueStage(newState: SystemState) {
   rs.busy = true;
   rs.historyIndex = newState.instructionHistory.length - 1;
 
-  if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_DF || instructionType === InstructionType.L_DS) {
+  if (
+    instructionType === InstructionType.L_D ||
+    instructionType === InstructionType.L_DF ||
+    instructionType === InstructionType.L_DS ||
+    instructionType === InstructionType.LW ||
+    instructionType === InstructionType.LWF
+  ) {
     const typedRS = reservationStations![index] as LoadBufferEntry;
     typedRS.address = Number(source1);
-  } else if (instructionType == InstructionType.S_D || instructionType == InstructionType.S_DF || instructionType == InstructionType.S_DS) {
+  } else if (
+    instructionType === InstructionType.S_D ||
+    instructionType === InstructionType.S_DF ||
+    instructionType === InstructionType.S_DS ||
+    instructionType === InstructionType.SW ||
+    instructionType === InstructionType.SWF
+  ) {
     const typedRS = reservationStations![index] as StoreBufferEntry;
     typedRS.address = Number(source1);
 
-    const sourceRegister = getRegister(destination, newState); // For stores the destination is the source register
+    const sourceRegister = getRegister(destination, newState); // For stores, the destination is the source register
     typedRS.v = sourceRegister.value;
     typedRS.q = sourceRegister.q;
   } else {
     const typedRS = reservationStations![index] as ReservationStationEntry;
     typedRS.op = instructionType;
 
-    if (instructionType === InstructionType.BNEZ || instructionType === InstructionType.BEQ || instructionType === InstructionType.BNE) {
+    if (
+      instructionType === InstructionType.BNEZ ||
+      instructionType === InstructionType.BEQ ||
+      instructionType === InstructionType.BNE
+    ) {
       const source1Register = getRegister(destination, newState);
       typedRS.vj = source1Register.value;
       typedRS.qj = source1Register.q;
@@ -202,10 +217,14 @@ function issueStage(newState: SystemState) {
   }
 
   if (
-    instructionType != InstructionType.S_D &&
-    instructionType != InstructionType.BNEZ  &&
-    instructionType != InstructionType.BEQ &&
-    instructionType != InstructionType.BNE
+    instructionType !== InstructionType.S_D &&
+    instructionType !== InstructionType.S_DF &&
+    instructionType !== InstructionType.S_DS &&
+    instructionType !== InstructionType.SW &&
+    instructionType !== InstructionType.SWF &&
+    instructionType !== InstructionType.BNEZ &&
+    instructionType !== InstructionType.BEQ &&
+    instructionType !== InstructionType.BNE
   ) {
     const destinationRegIndex = Number(destination.substring(1));
 
@@ -218,6 +237,7 @@ function issueStage(newState: SystemState) {
     }
   }
 }
+//
 
 function getReservationStationsForInstruction(
   instructionType: InstructionType,
@@ -256,12 +276,28 @@ function getReservationStationsForInstruction(
       reservationStations: newState.mulReservationStations,
       prefix: "M",
     };
-  } else if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_DF || instructionType === InstructionType.L_DS) {
+  } else if (
+    [
+      InstructionType.L_D,
+      InstructionType.L_DF,
+      InstructionType.L_DS,
+      InstructionType.LW,
+      InstructionType.LWF,
+    ].includes(instructionType)
+  ) {
     return {
       reservationStations: newState.loadBuffers,
       prefix: "L",
     };
-  } else if (instructionType === InstructionType.S_D || instructionType === InstructionType.S_DF  || instructionType === InstructionType.S_DS) {
+  } else if (
+    [
+      InstructionType.S_D,
+      InstructionType.S_DF,
+      InstructionType.S_DS,
+      InstructionType.SW,
+      InstructionType.SWF,
+    ].includes(instructionType)
+  ) {
     return {
       reservationStations: newState.storeBuffers,
       prefix: "S",
@@ -270,6 +306,7 @@ function getReservationStationsForInstruction(
     throw new Error("Unknown instruction type");
   }
 }
+
 
 function executeStage(newState: SystemState) {
   for (const rs of newState.adderReservationStations.concat(

@@ -85,6 +85,14 @@ export enum InstructionType {
   L_D = "LD",
   S_D = "SD",
 
+   // Integer loads/stores
+   LW = "LW", // Load Word (integer)
+   SW = "SW", // Store Word (integer)
+   
+   // Floating-point loads/stores
+   LWF = "L.W", // Load Word (float)
+   SWF = "S.W", // Store Word (float)
+
   L_DF = "L.D",
   S_DF = "S.D",
 

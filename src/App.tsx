@@ -55,6 +55,11 @@ function App() {
       [InstructionType.BEQ]: 1,
       [InstructionType.BNE]: 1,
 
+      [InstructionType.LW]: 2,   // Example latency
+      [InstructionType.SW]: 2,   // Example latency
+      [InstructionType.LWF]: 2,  // Example latency
+      [InstructionType.SWF]: 2, 
+
       [InstructionType.ADD_DI]: 2,
       [InstructionType.SUB_DI]: 2,
       [InstructionType.MUL_DI]: 4,
