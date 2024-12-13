@@ -303,7 +303,7 @@ function issue(newState: State) {
     } else if (destination.startsWith("R")) {
       newState.intRegisters[destinationRegIndex].q = reservationStationName;
     } else {
-      alert("Bt3ml eh ya 7mar");
+      alert("Error, unknown register type");
     }
   }
 }
