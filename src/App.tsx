@@ -1,13 +1,3 @@
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Container,
-  Grid,
-  Stack,
-  Typography,
-} from "@mui/material";
 import { useState } from "react";
 
 import { InstructionType, SystemSettings, SystemState } from "./types";
