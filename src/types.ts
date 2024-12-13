@@ -70,7 +70,9 @@ export enum InstructionType {
   ADD_D = "ADD.D",
   SUB_D = "SUB.D",
   MUL_D = "MUL.D",
+  MUL_S = "MUL.S",
   DIV_D = "DIV.D",
+  DIV_S = "DIV.S",
 
   ADD_S = "ADD.S",
   SUB_S = "SUB.S",

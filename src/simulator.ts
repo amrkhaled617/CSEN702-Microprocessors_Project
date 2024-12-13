@@ -245,7 +245,9 @@ function getReservationStationsForInstruction(
   } else if (
     [
       InstructionType.MUL_D,
+      InstructionType.MUL_S,
       InstructionType.DIV_D,
+      InstructionType.DIV_S,
       InstructionType.MUL_DI,
       InstructionType.DIV_DI,
     ].includes(instructionType)
@@ -326,10 +328,12 @@ function executeStage(newState: SystemState) {
         case InstructionType.BEQ:
         break;
         case InstructionType.MUL_D:
+        case InstructionType.MUL_S:
         case InstructionType.MUL_DI:
           rs.result = rs.vj * rs.vk;
           break;
         case InstructionType.DIV_D:
+        case InstructionType.DIV_S:
         case InstructionType.DIV_DI:
           if (rs.vk === 0) {
             alert("rs.vk is 0");
