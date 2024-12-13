@@ -264,21 +264,6 @@ export function SystemSettingsView({
               </button>
             </div>
           ))}
-
-          <div className="d-flex flex-row ">
-            <h6>Cache Initial Values</h6>
-            <button
-              className="btn btn-primary"
-              onClick={() =>
-          setCacheInitialValues((values) => [
-            ...values,
-            { address: 0, value: 0 },
-          ])
-              }
-            >
-              Add
-            </button>
-          </div>
           {cacheInitialValues.map(({ address, value }, index) => (
             <div className="d-flex flex-row" key={index}>
               <label>
