@@ -85,7 +85,8 @@ export enum InstructionType {
 
   ADDI = "ADDI",
   SUBI = "SUBI",
-
+  BNE = "BNE",
+  BEQ="BEQ",
   BNEZ = "BNEZ",
 }
 

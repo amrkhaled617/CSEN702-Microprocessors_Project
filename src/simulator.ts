@@ -174,7 +174,7 @@ function issueStage(newState: SystemState) {
     const typedRS = reservationStations![index] as ReservationStationEntry;
     typedRS.op = instructionType;
 
-    if (instructionType === InstructionType.BNEZ) {
+    if (instructionType === InstructionType.BNEZ || instructionType === InstructionType.BEQ || instructionType === InstructionType.BNE) {
       const source1Register = getRegister(destination, newState);
       typedRS.vj = source1Register.value;
       typedRS.qj = source1Register.q;
@@ -203,7 +203,9 @@ function issueStage(newState: SystemState) {
 
   if (
     instructionType != InstructionType.S_D &&
-    instructionType != InstructionType.BNEZ
+    instructionType != InstructionType.BNEZ  &&
+    instructionType != InstructionType.BEQ &&
+    instructionType != InstructionType.BNE
   ) {
     const destinationRegIndex = Number(destination.substring(1));
 
@@ -232,6 +234,8 @@ function getReservationStationsForInstruction(
       InstructionType.ADDI,
       InstructionType.SUBI,
       InstructionType.BNEZ,
+      InstructionType.BEQ,
+      InstructionType.BNE,
     ].includes(instructionType)
   ) {
     return {
@@ -286,9 +290,13 @@ function executeStage(newState: SystemState) {
       rs.timeRemaining--;
     }
 
-    if (rs.op === InstructionType.BNEZ) {
+    if (rs.op === InstructionType.BNEZ || rs.op === InstructionType.BEQ || rs.op === InstructionType.BNE) {
       if (rs.timeRemaining === 1) {
-        if (rs.vj != 0) {
+        if (
+          (rs.op === InstructionType.BNEZ && rs.vj != 0) ||
+          (rs.op === InstructionType.BEQ && rs.vj == rs.vk) ||
+          (rs.op === InstructionType.BNE && rs.vj != rs.vk)
+        ) {
           newState.nextIssue = rs.vk;
         }
         continue;
@@ -313,8 +321,10 @@ function executeStage(newState: SystemState) {
         case InstructionType.SUBI:
           rs.result = rs.vj - rs.vk;
           break;
-        case InstructionType.BNEZ:
-          break;
+          case InstructionType.BNEZ:
+            case InstructionType.BNE:
+            case InstructionType.BEQ:
+            break;
         case InstructionType.MUL_D:
         case InstructionType.MUL_DI:
           rs.result = rs.vj * rs.vk;
@@ -395,7 +405,7 @@ function writeResultStage(newState: SystemState) {
 
   // Reset BNEZ reservation station that finished
   for (const rs of newState.adderReservationStations) {
-    if (rs.busy && rs.timeRemaining === 0 && rs.op === InstructionType.BNEZ) {
+    if (rs.busy && rs.timeRemaining === 0 && (rs.op === InstructionType.BNEZ || rs.op === InstructionType.BEQ || rs.op === InstructionType.BNE)) {
       rs.busy = false;
       rs.timeRemaining = null;
       rs.historyIndex = null;
@@ -569,7 +579,10 @@ function getReservationStationWithMaxDependencies(state: SystemState) {
 
 function hasBranch(state: SystemState) {
   for (const rs of state.adderReservationStations) {
-    if (rs.op === InstructionType.BNEZ && rs.timeRemaining == null) return true;
+    if (
+      (rs.op === InstructionType.BNEZ || rs.op === InstructionType.BEQ || rs.op === InstructionType.BNE) &&
+      rs.timeRemaining == null
+    ) return true;
   }
 
   return false;
