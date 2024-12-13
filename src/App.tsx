@@ -155,7 +155,6 @@ function App() {
         <div className=" mb-3">
         <CacheView cache={systemState.cache} />
         </div>
-        {/* Optionally add a MemoryView component to display memory state */}
         <div className=" mb-3">
         <MemoryView memory={systemState.memory} />
         </div>
