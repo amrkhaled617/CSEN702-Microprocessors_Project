@@ -22,10 +22,9 @@ function storeValueInMemory(memory: number[], cache: { [blockIndex: number]: Cac
 
   if (cacheBlockIndex !== -1) {
     // Address found in cache, overwrite the data in both cache and memory
-    cache[cacheBlockIndex].data[blockOffset] = value & 0xFF; // Least significant byte
-    cache[cacheBlockIndex].data[blockOffset + 1] = (value >> 8) & 0xFF;
-    cache[cacheBlockIndex].data[blockOffset + 2] = (value >> 16) & 0xFF;
-    cache[cacheBlockIndex].data[blockOffset + 3] = (value >> 24) & 0xFF; // Most significant byte
+    for (let i = 0; i < 4; i++) {
+      cache[cacheBlockIndex].data[blockOffset + i] = (value >> (i * 8)) & 0xFF;
+    }
     cache[cacheBlockIndex].valid = true;
   } else {
     // Address not found in cache, search for an empty cache block
@@ -57,10 +56,9 @@ function storeValueInMemory(memory: number[], cache: { [blockIndex: number]: Cac
   }
 
   // Store the data in memory
-  memory[address] = value & 0xFF; // Least significant byte
-  memory[address + 1] = (value >> 8) & 0xFF;
-  memory[address + 2] = (value >> 16) & 0xFF;
-  memory[address + 3] = (value >> 24) & 0xFF; // Most significant byte
+  for (let i = 0; i < 4; i++) {
+    memory[address + i] = (value >> (i * 8)) & 0xFF;
+  }
 }
 function storeValueInCache(cache: { [blockIndex: number]: CacheBlock }, memory: number[], address: number, blockSize: number) {
   const blockIndex = Math.floor(address / blockSize);
@@ -94,13 +92,11 @@ function storeValueInCache(cache: { [blockIndex: number]: CacheBlock }, memory: 
   cache[emptyBlockIndex].valid = true;
 }
 function loadValueFromMemory(memory: number[], address: number): number {
-  const blockIndex = Math.floor(address / 4) * 4; // Align to the start of a 4-byte block
-
   return (
-    (memory[blockIndex] & 0xFF) |
-    ((memory[blockIndex + 1] & 0xFF) << 8) |
-    ((memory[blockIndex + 2] & 0xFF) << 16) |
-    ((memory[blockIndex + 3] & 0xFF) << 24)
+    (memory[address] & 0xFF) |
+    ((memory[address + 1] & 0xFF) << 8) |
+    ((memory[address + 2] & 0xFF) << 16) |
+    ((memory[address + 3] & 0xFF) << 24)
   );
 }
 
@@ -147,7 +143,13 @@ export function generateSystemState(
     systemState.memory[testBlockIndex * 4+3] = 4;
     systemState.memory[testBlockIndex * 4+4] = 77;
     systemState.memory[testBlockIndex * 4+5] = 61;
-
+    for (let i = 0; i < systemSettings.cacheSize; i++) {
+      systemState.cache[i] = {
+        valid: false,
+        data: new Array(systemSettings.cacheBlockSize).fill(0),
+        address: 0,
+      };
+    }
 
   for (let i = 0; i < systemSettings.numOfAdderReservationStations; i++) {
     systemState.adderReservationStations.push({
@@ -213,17 +215,17 @@ export function generateSystemState(
   }
 
   for (const { address, value } of systemSettings.cacheInitialValues) {
-    const blockIndex = Math.floor(address / 4);
-    const blockOffset = address % 4; 
-  
+    const blockIndex = Math.floor(address / systemSettings.cacheBlockSize);
+    const blockOffset = address % systemSettings.cacheBlockSize;
+
     if (!systemState.cache[blockIndex]) {
       systemState.cache[blockIndex] = {
         valid: false,
-        data: new Array(4).fill(0),
-        address:0,
+        data: new Array(systemSettings.cacheBlockSize).fill(0),
+        address: 0,
       };
     }
-  
+
     systemState.cache[blockIndex].data[blockOffset] = value;
     systemState.cache[blockIndex].valid = true;
   }

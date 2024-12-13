@@ -48,6 +48,8 @@ export type SystemSettings = {
   numOfStoreBuffers: number;
   numOfFPRegisters: number;
   numOfIntRegisters: number;
+  cacheSize: number; 
+  cacheBlockSize: number;
   latencies: {
     [key in InstructionType]: number;
   };
