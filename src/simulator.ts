@@ -488,6 +488,7 @@ function executeStage(newState: SystemState) {
         storeValueInCache(newState.cache, newState.memory, rs.address, 4);
       } else {
         // Cache miss, load block from memory
+        newState.currentClock+=1;
         for (let i = 0; i < 4; i++) {
           newState.cache[blockIndex].data[i] = newState.memory[blockIndex * 4 + i];
         }
@@ -556,6 +557,7 @@ function executeStage(newState: SystemState) {
       if (cachedValue !== null) {
         rs.result = cachedValue;
       } else {
+        newState.currentClock+=1;
         // Cache miss, load block from memory
         storeValueInCache(newState.cache, newState.memory, rs.address, 4);
         newState.cache[blockIndex].valid = true;
