@@ -1,14 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "@mui/material";
-import { RegisterFileEntry } from "../types";
+import { RegisterFileSlot } from "./Classes";
 
 export function RegisterFileView({
   registerFile,
@@ -16,7 +6,7 @@ export function RegisterFileView({
   prefix,
 }: {
   registerFile: {
-    [key: number]: RegisterFileEntry;
+    [key: number]: RegisterFileSlot;
   };
   title: string;
   prefix: string;
@@ -28,7 +18,7 @@ export function RegisterFileView({
       <table className="table">
         <thead>
         <tr>
-          <th>Register Name</th>
+          <th>Reg</th>
           <th>Value</th>
           <th>Q</th>
         </tr>

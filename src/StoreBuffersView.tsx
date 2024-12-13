@@ -1,9 +1,9 @@
-import { StoreBufferEntry } from "../types";
+import { StoreBufferSlot } from "./Classes";
 
 export function StoreBuffersView({
   storeBuffers,
 }: {
-  storeBuffers: StoreBufferEntry[];
+  storeBuffers: StoreBufferSlot[];
 }) {
   return (
     <div className="card">

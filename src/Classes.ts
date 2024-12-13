@@ -1,4 +1,4 @@
-export type ReservationStationEntry = {
+export type ReservationStationSlot = {
   busy: boolean;
   op: string;
   vj: number;
@@ -10,7 +10,7 @@ export type ReservationStationEntry = {
   historyIndex: number | null;
 };
 
-export type InstructionHistoryEntry = {
+export type InstructionHistorySlot = {
   instruction: string;
   issuedAt: number | null;
   startExecutionAt: number | null;
@@ -19,7 +19,7 @@ export type InstructionHistoryEntry = {
   stationName: string;
 };
 
-export type LoadBufferEntry = {
+export type LoadBufferSlot = {
   busy: boolean;
   address: number;
   timeRemaining: number | null;
@@ -27,7 +27,7 @@ export type LoadBufferEntry = {
   historyIndex: number | null;
 };
 
-export type StoreBufferEntry = {
+export type StoreBufferSlot = {
   busy: boolean;
   address: number;
   v: number;
@@ -36,12 +36,12 @@ export type StoreBufferEntry = {
   historyIndex: number | null;
 };
 
-export type RegisterFileEntry = {
+export type RegisterFileSlot = {
   value: number;
   q: string;
 };
 
-export type SystemSettings = {
+export type initSettings = {
   numOfAdderReservationStations: number;
   numOfMulReservationStations: number;
   numOfLoadBuffers: number;
@@ -98,24 +98,24 @@ export enum InstructionType {
   BNEZ = "BNEZ",
 }
 
-export type SystemState = {
-  adderReservationStations: ReservationStationEntry[];
-  mulReservationStations: ReservationStationEntry[];
-  loadBuffers: LoadBufferEntry[];
-  storeBuffers: StoreBufferEntry[];
+export type State = {
+  adderReservationStations: ReservationStationSlot[];
+  mulReservationStations: ReservationStationSlot[];
+  loadBuffers: LoadBufferSlot[];
+  storeBuffers: StoreBufferSlot[];
   nextIssue: number;
   currentClock: number;
-  instructionHistory: InstructionHistoryEntry[];
+  instructionHistory: InstructionHistorySlot[];
   instructions: string[];
   memory: number[];
   cache: {
     [blockIndex: number]: CacheBlock;
   };
   fpRegisters: {
-    [key: number]: RegisterFileEntry;
+    [key: number]: RegisterFileSlot;
   };
   intRegisters: {
-    [key: number]: RegisterFileEntry;
+    [key: number]: RegisterFileSlot;
   };
   latencies: {
     [key in InstructionType]: number;

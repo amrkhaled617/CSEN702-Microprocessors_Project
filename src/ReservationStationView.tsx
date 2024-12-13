@@ -1,9 +1,9 @@
-import { ReservationStationEntry } from "../types";
+import { ReservationStationSlot } from "./Classes";
 
 export function ReservationStationView({
   entries, title, namePrefix
 }: {
-  entries: ReservationStationEntry[];
+  entries: ReservationStationSlot[];
   title: string;
   namePrefix: string;
 }) {

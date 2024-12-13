@@ -1,6 +1,6 @@
-import { CacheBlock } from "../types";
+import { CacheBlock } from "./Classes";
 
-export function CacheView({
+export function CacheViewer({
   cache,
 }: {
   cache: {

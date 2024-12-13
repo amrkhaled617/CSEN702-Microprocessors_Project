@@ -1,4 +1,4 @@
-export const NotesView = ({ notes }: { notes: string[] }) => {
+export const MissesAlerts = ({ notes }: { notes: string[] }) => {
   return (
     <div className="card">
       <div className="card-header">Notes</div>

@@ -1,9 +1,9 @@
-import { InstructionHistoryEntry } from "../types";
+import { InstructionHistorySlot } from "./Classes";
 
 export function InstructionHistoryView({
   instructionHistory,
 }: {
-  instructionHistory: InstructionHistoryEntry[];
+  instructionHistory: InstructionHistorySlot[];
 }) {
   return (
 <div className="card">

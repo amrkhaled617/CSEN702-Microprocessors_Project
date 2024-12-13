@@ -1,12 +1,12 @@
 import {
   InstructionType,
-  LoadBufferEntry,
-  ReservationStationEntry,
-  StoreBufferEntry,
-  SystemSettings,
-  SystemState,
+  LoadBufferSlot,
+  ReservationStationSlot,
+  StoreBufferSlot,
+  initSettings,
+  State,
   CacheBlock
-} from "./types";
+} from "./Classes";
 function storeValueInMemory(memory: number[], address: number, value: number) {
   memory[address] = value & 0xFF; // Least significant byte
   memory[address + 1] = (value >> 8) & 0xFF;
@@ -70,38 +70,38 @@ function loadValueFromCache(cache: { [blockIndex: number]: CacheBlock }, address
 
   return null;
 }
-export function generateSystemState(
-  systemSettings: SystemSettings
-): SystemState {
-  const systemState: SystemState = {
-    adderReservationStations: [],
-    mulReservationStations: [],
+export function init(
+  initSettings: initSettings
+): State {
+  const State: State = {
     loadBuffers: [],
     storeBuffers: [],
     nextIssue: 0,
     currentClock: 0,
+    adderReservationStations: [],
+    mulReservationStations: [],
     instructionHistory: [],
-    instructions: systemSettings.code.split("\n"),
+    instructions: initSettings.code.split("\n"),
+    latencies: initSettings.latencies,
     memory: new Array(1024).fill(0),
     cache: {},
     fpRegisters: {},
     intRegisters: {},
     notes: [],
-    latencies: systemSettings.latencies,
   };
   const testBlockIndex = 0; // Example block index
   const testBlockValue = 4;
   
-    systemState.memory[testBlockIndex * 4] = 7;
-    systemState.memory[testBlockIndex * 4+1] = 5;
-    systemState.memory[testBlockIndex * 4+2] = 33;
-    systemState.memory[testBlockIndex * 4+3] = 4;
-    systemState.memory[testBlockIndex * 4+4] = 77;
-    systemState.memory[testBlockIndex * 4+5] = 61;
+    State.memory[testBlockIndex * 4] = 7;
+    State.memory[testBlockIndex * 4+1] = 5;
+    State.memory[testBlockIndex * 4+2] = 33;
+    State.memory[testBlockIndex * 4+3] = 4;
+    State.memory[testBlockIndex * 4+4] = 77;
+    State.memory[testBlockIndex * 4+5] = 61;
 
 
-  for (let i = 0; i < systemSettings.numOfAdderReservationStations; i++) {
-    systemState.adderReservationStations.push({
+  for (let i = 0; i < initSettings.numOfAdderReservationStations; i++) {
+    State.adderReservationStations.push({
       busy: false,
       op: "",
       vj: 0,
@@ -114,8 +114,8 @@ export function generateSystemState(
     });
   }
 
-  for (let i = 0; i < systemSettings.numOfMulReservationStations; i++) {
-    systemState.mulReservationStations.push({
+  for (let i = 0; i < initSettings.numOfMulReservationStations; i++) {
+    State.mulReservationStations.push({
       busy: false,
       op: "",
       vj: 0,
@@ -128,8 +128,8 @@ export function generateSystemState(
     });
   }
 
-  for (let i = 0; i < systemSettings.numOfLoadBuffers; i++) {
-    systemState.loadBuffers.push({
+  for (let i = 0; i < initSettings.numOfLoadBuffers; i++) {
+    State.loadBuffers.push({
       busy: false,
       address: 0,
       timeRemaining: null,
@@ -138,8 +138,8 @@ export function generateSystemState(
     });
   }
 
-  for (let i = 0; i < systemSettings.numOfStoreBuffers; i++) {
-    systemState.storeBuffers.push({
+  for (let i = 0; i < initSettings.numOfStoreBuffers; i++) {
+    State.storeBuffers.push({
       busy: false,
       address: 0,
       v: 0,
@@ -149,79 +149,79 @@ export function generateSystemState(
     });
   }
 
-  for (let i = 0; i < systemSettings.numOfFPRegisters; i++) {
-    systemState.fpRegisters[i] = {
+  for (let i = 0; i < initSettings.numOfFPRegisters; i++) {
+    State.fpRegisters[i] = {
       value: 0,
       q: "",
     };
   }
 
-  for (let i = 0; i < systemSettings.numOfIntRegisters; i++) {
-    systemState.intRegisters[i] = {
+  for (let i = 0; i < initSettings.numOfIntRegisters; i++) {
+    State.intRegisters[i] = {
       value: 0,
       q: "",
     };
   }
 
-  for (const { address, value } of systemSettings.cacheInitialValues) {
+  for (const { address, value } of initSettings.cacheInitialValues) {
     const blockIndex = Math.floor(address / 4);
     const blockOffset = address % 4; 
   
-    if (!systemState.cache[blockIndex]) {
-      systemState.cache[blockIndex] = {
+    if (!State.cache[blockIndex]) {
+      State.cache[blockIndex] = {
         valid: false,
         data: new Array(4).fill(0),
         address:0,
       };
     }
   
-    systemState.cache[blockIndex].data[blockOffset] = value;
-    systemState.cache[blockIndex].valid = true;
+    State.cache[blockIndex].data[blockOffset] = value;
+    State.cache[blockIndex].valid = true;
   }
 
   for (const {
     registerName,
     value,
-  } of systemSettings.fpRegisterFileInitialValues) {
-    systemState.fpRegisters[registerName].value = value;
+  } of initSettings.fpRegisterFileInitialValues) {
+    State.fpRegisters[registerName].value = value;
   }
 
   for (const {
     registerName,
     value,
-  } of systemSettings.intRegisterFileInitialValues) {
-    systemState.intRegisters[registerName].value = value;
+  } of initSettings.intRegisterFileInitialValues) {
+    State.intRegisters[registerName].value = value;
   }
 
-  return systemState;
+  return State;
 }
 
-export function nextSystemState(systemState: SystemState): SystemState {
-  const newState = structuredClone(systemState);
+export function nextState(State: State): State {
+  const newState = structuredClone(State);
 
   newState.notes = [];
   newState.currentClock++;
 
-  issueStage(newState);
+  issue(newState);
 
-  executeStage(newState);
+  execute(newState);
 
-  writeResultStage(newState);
+  writeResult(newState);
 
   console.log(newState);
 
   return newState;
 }
 
-function issueStage(newState: SystemState) {
+function issue(newState: State) {
   if (newState.nextIssue >= newState.instructions.length) return;
-  if (hasBranch(newState)) return;
+  if (includeBR(newState)) return;
 
   const instruction = newState.instructions[newState.nextIssue];
   const { instructionType, destination, source1, source2 } =
     parseInstruction(instruction);
 
-  const { reservationStations, prefix } = getReservationStationsForInstruction(
+  const { reservationStations, prefix } = getReservationStations(
     instructionType,
     newState
   );
@@ -247,17 +247,17 @@ function issueStage(newState: SystemState) {
   rs.historyIndex = newState.instructionHistory.length - 1;
 
   if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_S || instructionType === InstructionType.LD || instructionType === InstructionType.LW) {
-    const typedRS = reservationStations![index] as LoadBufferEntry;
+    const typedRS = reservationStations![index] as LoadBufferSlot;
     typedRS.address = Number(source1);
   } else if (instructionType == InstructionType.S_D ||instructionType == InstructionType.S_S || instructionType == InstructionType.SD || instructionType == InstructionType.SW) {
-    const typedRS = reservationStations![index] as StoreBufferEntry;
+    const typedRS = reservationStations![index] as StoreBufferSlot;
     typedRS.address = Number(source1);
 
-    const sourceRegister = getRegister(destination, newState); // For stores the destination is the source register
+    const sourceRegister = getRegister(destination, newState); 
     typedRS.v = sourceRegister.value;
     typedRS.q = sourceRegister.q;
   } else {
-    const typedRS = reservationStations![index] as ReservationStationEntry;
+    const typedRS = reservationStations![index] as ReservationStationSlot;
     typedRS.op = instructionType;
 
     if (instructionType === InstructionType.BNEZ || instructionType === InstructionType.BEQ || instructionType === InstructionType.BNE) {
@@ -271,7 +271,7 @@ function issueStage(newState: SystemState) {
       typedRS.vj = source1Register.value;
       typedRS.qj = source1Register.q;
     } else {
-      typedRS.vk = getInstructionIndexWithLabel(newState, source1);
+      typedRS.vk = findInstructionhelper(newState, source1);
       typedRS.qk = "";
     }
 
@@ -308,9 +308,9 @@ function issueStage(newState: SystemState) {
   }
 }
 
-function getReservationStationsForInstruction(
+function getReservationStations(
   instructionType: InstructionType,
-  newState: SystemState
+  newState: State
 ) {
   if (
     [
@@ -356,11 +356,11 @@ function getReservationStationsForInstruction(
       prefix: "S",
     };
   } else {
-    throw new Error("Unknown instruction type");
+    throw new Error("Erro ,Unknown instruction type");
   }
 }
 
-function executeStage(newState: SystemState) {
+function execute(newState: State) {
   for (const rs of newState.adderReservationStations.concat(
     newState.mulReservationStations
   )) {
@@ -430,7 +430,7 @@ function executeStage(newState: SystemState) {
           rs.result = rs.vj / rs.vk;
           break;
         default:
-          throw new Error("Unknown operation");
+          throw new Error("Error , faulty operation");
       }
     }
   }
@@ -462,7 +462,7 @@ function executeStage(newState: SystemState) {
         throw new Error("Unknown store instruction type");
     }
   
-    if (latency === null) continue; // Skip if latency is not set
+    if (latency === null) continue; 
   
     if (rs.timeRemaining == null) {
       rs.timeRemaining = latency;
@@ -481,19 +481,19 @@ function executeStage(newState: SystemState) {
         newState.cache[blockIndex] = {
           valid: false,
           data: new Array(4).fill(0),
-          address: rs.address, // Store the memory address of the first byte of the word
+          address: rs.address, 
         };
       }
       if (newState.cache[blockIndex].valid) {
         storeValueInCache(newState.cache, newState.memory, rs.address, 4);
       } else {
-        // Cache miss, load block from memory
+      
         newState.currentClock+=1;
         for (let i = 0; i < 4; i++) {
           newState.cache[blockIndex].data[i] = newState.memory[blockIndex * 4 + i];
         }
         newState.cache[blockIndex].valid = true;
-        newState.cache[blockIndex].address = rs.address; // Store the memory address of the first byte of the word
+        newState.cache[blockIndex].address = rs.address; 
         storeValueInCache(newState.cache, newState.memory, rs.address, 4);
       }
       storeValueInMemory(newState.memory, rs.address, rs.v);
@@ -527,7 +527,7 @@ function executeStage(newState: SystemState) {
         throw new Error("Unknown load instruction type");
     }
   
-    if (latency === null) continue; // Skip if latency is not set
+    if (latency === null) continue; 
   
     if (rs.timeRemaining == null) {
       rs.timeRemaining = latency;
@@ -548,20 +548,20 @@ function executeStage(newState: SystemState) {
         newState.cache[blockIndex] = {
           valid: false,
           data: new Array(4).fill(0),
-          address: rs.address, // Store the memory address of the first byte of the word
+          address: rs.address, 
         };
       }
 
-      // Search for the memory address of the first byte of the word in the cache
+     
       const cachedValue = loadValueFromCache(newState.cache, rs.address, 4);
       if (cachedValue !== null) {
         rs.result = cachedValue;
       } else {
         newState.currentClock+=1;
-        // Cache miss, load block from memory
+        
         storeValueInCache(newState.cache, newState.memory, rs.address, 4);
         newState.cache[blockIndex].valid = true;
-        newState.cache[blockIndex].address = rs.address; // Store the memory address of the first byte of the word
+        newState.cache[blockIndex].address = rs.address; 
         rs.result = loadValueFromMemory(newState.memory, rs.address);
         newState.notes.push(`Compulsory miss at address ${rs.address}`);
       }
@@ -569,7 +569,7 @@ function executeStage(newState: SystemState) {
   }
 }
 
-function writeResultStage(newState: SystemState) {
+function writeResult(newState: State) {
   for (const rs of newState.storeBuffers) {
     if (rs.busy && rs.timeRemaining === 0) {
       rs.busy = false;
@@ -596,9 +596,9 @@ function writeResultStage(newState: SystemState) {
     }
   }
 
-  const maxRS = getReservationStationWithMaxDependencies(
+  const maxRS = getMaxStationhelper(
     newState
-  ) as ReservationStationEntry & LoadBufferEntry;
+  ) as ReservationStationSlot & LoadBufferSlot;
 
   if (!maxRS) return;
 
@@ -643,7 +643,6 @@ function writeResultStage(newState: SystemState) {
   newState.instructionHistory[maxRS.historyIndex!].writeResultAt =
     newState.currentClock;
 
-  // Remove the instruction from the reservation station
   maxRS.busy = false;
   maxRS.result = null;
   maxRS.historyIndex = null;
@@ -679,7 +678,7 @@ function parseInstruction(instructionStr: string) {
   };
 }
 
-function getRegister(regName: string, newState: SystemState) {
+function getRegister(regName: string, newState: State) {
   const regIndex = Number(regName.substring(1));
   let regFile = regName.startsWith("F")
     ? newState.fpRegisters
@@ -688,7 +687,7 @@ function getRegister(regName: string, newState: SystemState) {
   return regFile[regIndex];
 }
 
-function countDependencies(state: SystemState, stationName: string) {
+function countdeps(state: State, stationName: string) {
   let count = 0;
 
   for (const rs of state.adderReservationStations.concat(
@@ -712,7 +711,7 @@ function countDependencies(state: SystemState, stationName: string) {
   return count;
 }
 
-function getReservationStationWithMaxDependencies(state: SystemState) {
+function getMaxStationhelper(state: State) {
   let maxRS;
   let maxCount = 0;
 
@@ -723,7 +722,7 @@ function getReservationStationWithMaxDependencies(state: SystemState) {
 
     const reservationStationName =
       state.instructionHistory[rs.historyIndex!].stationName;
-    const count = countDependencies(state, reservationStationName);
+    const count = countdeps(state, reservationStationName);
 
     if (count > maxCount) {
       maxCount = count;
@@ -740,7 +739,7 @@ function getReservationStationWithMaxDependencies(state: SystemState) {
 
     const reservationStationName =
       state.instructionHistory[rs.historyIndex!].stationName;
-    const count = countDependencies(state, reservationStationName);
+    const count = countdeps(state, reservationStationName);
     if (count > maxCount) {
       maxCount = count;
       maxRS = rs;
@@ -754,7 +753,7 @@ function getReservationStationWithMaxDependencies(state: SystemState) {
   return maxRS;
 }
 
-function hasBranch(state: SystemState) {
+function includeBR(state: State) {
   for (const rs of state.adderReservationStations) {
     if (
       (rs.op === InstructionType.BNEZ || rs.op === InstructionType.BEQ || rs.op === InstructionType.BNE) &&
@@ -765,7 +764,7 @@ function hasBranch(state: SystemState) {
   return false;
 }
 
-function getInstructionIndexWithLabel(state: SystemState, label: string) {
+function findInstructionhelper(state: State, label: string) {
   for (let i = 0; i < state.instructions.length; i++) {
     if (state.instructions[i].startsWith(label)) return i;
   }

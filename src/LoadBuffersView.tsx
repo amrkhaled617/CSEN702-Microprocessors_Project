@@ -1,9 +1,9 @@
-import { LoadBufferEntry } from "../types";
+import { LoadBufferSlot } from "./Classes";
 
 export function LoadBuffersView({
   loadBuffers,
 }: {
-  loadBuffers: LoadBufferEntry[];
+  loadBuffers: LoadBufferSlot[];
 }) {
   return (
     <div className="card">

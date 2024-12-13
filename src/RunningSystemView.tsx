@@ -1,50 +1,42 @@
-// import {
-//   button,
-//   div ,
-//   div,
-//   div,
-//   input,
-//   div,
-// } from "@mui/material";
 import { useState } from "react";
-import { SystemSettings } from "../types";
+import { initSettings } from "./Classes";
 
-export function SystemSettingsView({
+export function RunningSystemView({
   onRunClicked,
-  systemSettings,
+  initSettings,
 }: {
-  onRunClicked: (systemSettings: SystemSettings) => void;
-  systemSettings: SystemSettings;
+  onRunClicked: (initSettings: initSettings) => void;
+  initSettings: initSettings;
 }) {
-  const [code, setCode] = useState(systemSettings.code);
+  const [code, setCode] = useState(initSettings.code);
 
   const [numOfAdderReservationStations, setNumOfAdderReservationStations] =
-    useState(systemSettings.numOfAdderReservationStations);
+    useState(initSettings.numOfAdderReservationStations);
   const [numOfMulReservationStations, setNumOfMulReservationStations] =
-    useState(systemSettings.numOfLoadBuffers);
+    useState(initSettings.numOfLoadBuffers);
   const [numOfLoadBuffers, setNumOfLoadBuffers] = useState(
-    systemSettings.numOfLoadBuffers
+    initSettings.numOfLoadBuffers
   );
   const [numOfStoreBuffers, setNumOfStoreBuffers] = useState(
-    systemSettings.numOfStoreBuffers
+    initSettings.numOfStoreBuffers
   );
 
   const [numOfFPRegisters, setNumOfFPRegisters] = useState(
-    systemSettings.numOfFPRegisters
+    initSettings.numOfFPRegisters
   );
 
   const [numOfIntRegisters, setNumOfIntRegisters] = useState(
-    systemSettings.numOfIntRegisters
+    initSettings.numOfIntRegisters
   );
 
-  const [latencies, setLatencies] = useState(systemSettings.latencies);
+  const [latencies, setLatencies] = useState(initSettings.latencies);
 
   const [fpRegisterFileInitialValues, setFPRegisterFileInitialValues] =
-    useState(systemSettings.fpRegisterFileInitialValues);
+    useState(initSettings.fpRegisterFileInitialValues);
   const [intRegisterFileInitialValues, setIntRegisterFileInitialValues] =
-    useState(systemSettings.intRegisterFileInitialValues);
+    useState(initSettings.intRegisterFileInitialValues);
   const [cacheInitialValues, setCacheInitialValues] = useState(
-    systemSettings.cacheInitialValues
+    initSettings.cacheInitialValues
   );
 
   return (

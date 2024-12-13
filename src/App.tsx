@@ -1,20 +1,20 @@
 import { useState } from "react";
 
-import { InstructionType, SystemSettings, SystemState } from "./types";
-import { generateSystemState, nextSystemState } from "./simulator";
+import { InstructionType, initSettings, State } from "./Classes";
+import { init, nextState } from "./codeRunner";
 
-import { ReservationStationView } from "./components/ReservationStationView";
-import { SystemSettingsView } from "./components/SystemSettingsView";
-import { StoreBuffersView } from "./components/StoreBuffersView";
-import { LoadBuffersView } from "./components/LoadBuffersView";
-import { InstructionHistoryView } from "./components/InstructionHistoryView";
-import { InstructionListView } from "./components/InstructionListView";
-import { NotesView } from "./components/NotesView";
-import { CacheView } from "./components/CacheView";
-import { RegisterFileView } from "./components/RegisterFileView";
-import { MemoryView } from "./components/MemoryView";
+import { ReservationStationView } from "./ReservationStationView";
+import { RunningSystemView } from "./RunningSystemView";
+import { StoreBuffersView } from "./StoreBuffersView";
+import { LoadBuffersView } from "./LoadBuffersView";
+import { InstructionHistoryView } from "./InstructionHistoryView";
+import { InstructionListView } from "./InstructionListView";
+import { MissesAlerts } from "./MissesAlerts";
+import { CacheViewer } from "./CacheViewer";
+import { RegisterFileView } from "./RegisterFileView";
+import { MemoryView } from "./MemoryView";
 function App() {
-  const [systemSettings, setSystemSettings] = useState<SystemSettings>({
+  const [initSettings, setSystemSettings] = useState<initSettings>({
     code: "",
     numOfAdderReservationStations: 3,
     numOfMulReservationStations: 2,
@@ -56,26 +56,26 @@ function App() {
     intRegisterFileInitialValues: [],
     cacheInitialValues: [],
   });
-  const [systemState, setSystemState] = useState<SystemState | null>(null);
+  const [State, setSystemState] = useState<State | null>(null);
 
-  const onRunClicked = (systemSettings: SystemSettings) => {
-    setSystemSettings(systemSettings);
-    setSystemState(generateSystemState(systemSettings));
+  const onRunClicked = (initSettings: initSettings) => {
+    setSystemSettings(initSettings);
+    setSystemState(init(initSettings));
   };
 
   const onNextClicked = () => {
-    setSystemState((systemState) => nextSystemState(systemState!));
+    setSystemState((State) => nextState(State!));
   };
 
   return (
     <div className="container pt-2">
-      {systemState ? (
+      {State ? (
       <div className="row">
         <div className=" mb-3">
         <div className="card">
           <div className="card-body">
           <h6 className="card-subtitle mb-2 text-muted">Clock:</h6>
-          <h5 className="card-title">{systemState?.currentClock}</h5>
+          <h5 className="card-title">{State?.currentClock}</h5>
           </div>
           <div className="card-footer">
           <div className="btn-group" role="group">
@@ -91,25 +91,25 @@ function App() {
         </div>
 
         <div className=" mb-3">
-        <NotesView notes={systemState.notes} />
+        <MissesAlerts notes={State.notes} />
         </div>
 
         <div className=" mb-3">
         <InstructionListView
-          instructions={systemState.instructions}
-          currentInstructionIndex={systemState.nextIssue}
+          instructions={State.instructions}
+          currentInstructionIndex={State.nextIssue}
         />
         </div>
 
         <div className=" mb-3">
         <InstructionHistoryView
-          instructionHistory={systemState.instructionHistory}
+          instructionHistory={State.instructionHistory}
         />
         </div>
 
         <div className=" mb-3">
         <ReservationStationView
-          entries={systemState.adderReservationStations}
+          entries={State.adderReservationStations}
           title="Adder Reservation Stations"
           namePrefix="A"
         />
@@ -117,42 +117,42 @@ function App() {
 
         <div className=" mb-3">
         <ReservationStationView
-          entries={systemState.mulReservationStations}
+          entries={State.mulReservationStations}
           title="Multiplier Reservation Stations"
           namePrefix="M"
         />
         </div>
         <div className=" mb-3">
-        <LoadBuffersView loadBuffers={systemState.loadBuffers} />
+        <LoadBuffersView loadBuffers={State.loadBuffers} />
         </div>
         <div className=" mb-3">
-        <StoreBuffersView storeBuffers={systemState.storeBuffers} />
+        <StoreBuffersView storeBuffers={State.storeBuffers} />
         </div>
         <div className=" mb-3">
         <RegisterFileView
-          registerFile={systemState.fpRegisters}
+          registerFile={State.fpRegisters}
           title="FP Register File"
           prefix="F"
         />
         </div>
         <div className=" mb-3">
         <RegisterFileView
-          registerFile={systemState.intRegisters}
+          registerFile={State.intRegisters}
           title="Int Register File"
           prefix="R"
         />
         </div>
         <div className=" mb-3">
-        <CacheView cache={systemState.cache} />
+        <CacheViewer cache={State.cache} />
         </div>
         <div className=" mb-3">
-        <MemoryView memory={systemState.memory} />
+        <MemoryView memory={State.memory} />
         </div>
       </div>
       ) : (
-      <SystemSettingsView
+      <RunningSystemView
         onRunClicked={onRunClicked}
-        systemSettings={systemSettings}
+        initSettings={initSettings}
       />
       )}
     </div>
