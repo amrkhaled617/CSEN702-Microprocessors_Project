@@ -1,11 +1,3 @@
-import {
-  Card, CardContent,
-  CardHeader, Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow
-} from "@mui/material";
 import { ReservationStationEntry } from "../types";
 
 export function ReservationStationView({
@@ -16,38 +8,38 @@ export function ReservationStationView({
   namePrefix: string;
 }) {
   return (
-    <Card>
-      <CardHeader title={title} />
-      <CardContent>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Time Remaining</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Busy</TableCell>
-              <TableCell>Op</TableCell>
-              <TableCell>Vj</TableCell>
-              <TableCell>Vk</TableCell>
-              <TableCell>Qj</TableCell>
-              <TableCell>Qk</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {entries.map((station, index) => (
-              <TableRow key={index}>
-              <TableCell>{station.timeRemaining}</TableCell>
-                <TableCell>{namePrefix + (index + 1)}</TableCell>
-                <TableCell>{station.busy ? "Yes" : "No"}</TableCell>
-                <TableCell>{station.op}</TableCell>
-                <TableCell>{station.vj}</TableCell>
-                <TableCell>{station.vk}</TableCell>
-                <TableCell>{station.qj}</TableCell>
-                <TableCell>{station.qk}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <div className="card">
+      <div className="card-header">{title}</div>
+      <div className="card-body">
+      <table className="table">
+        <thead>
+        <tr>
+          <th>Time Remaining</th>
+          <th>Name</th>
+          <th>Busy</th>
+          <th>Op</th>
+          <th>Vj</th>
+          <th>Vk</th>
+          <th>Qj</th>
+          <th>Qk</th>
+        </tr>
+        </thead>
+        <tbody>
+        {entries.map((station, index) => (
+          <tr key={index}>
+          <td>{station.timeRemaining}</td>
+          <td>{namePrefix + (index + 1)}</td>
+          <td>{station.busy ? "Yes" : "No"}</td>
+          <td>{station.op}</td>
+          <td>{station.vj}</td>
+          <td>{station.vk}</td>
+          <td>{station.qj}</td>
+          <td>{station.qk}</td>
+          </tr>
+        ))}
+        </tbody>
+      </table>
+      </div>
+    </div>
   );
 }

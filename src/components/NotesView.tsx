@@ -1,18 +1,16 @@
-import { Alert, Card, CardContent, CardHeader, Stack } from "@mui/material";
-
 export const NotesView = ({ notes }: { notes: string[] }) => {
   return (
-    <Card>
-      <CardHeader title="Notes" />
-      <CardContent>
-        <Stack spacing={1}>
-          {notes.map((note, index) => (
-            <Alert key={index} color="info">
-              {note}
-            </Alert>
-          ))}
-        </Stack>
-      </CardContent>
-    </Card>
+    <div className="card">
+      <div className="card-header">Notes</div>
+      <div className="card-body">
+      <div className="d-flex flex-column gap-1">
+        {notes.map((note, index) => (
+        <div key={index} className="alert alert-info">
+          {note}
+        </div>
+        ))}
+      </div>
+      </div>
+    </div>
   );
 };

@@ -1,12 +1,3 @@
-import {
-  Card,
-  CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "@mui/material";
 import { InstructionHistoryEntry } from "../types";
 
 export function InstructionHistoryView({
@@ -15,31 +6,31 @@ export function InstructionHistoryView({
   instructionHistory: InstructionHistoryEntry[];
 }) {
   return (
-    <Card>
-      <CardContent>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Instruction</TableCell>
-              <TableCell>Issue</TableCell>
-              <TableCell>Start Execution</TableCell>
-              <TableCell>End Execution</TableCell>
-              <TableCell>Write Result</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {instructionHistory.map((instructionStatus, index) => (
-              <TableRow key={index}>
-                <TableCell>{instructionStatus.instruction}</TableCell>
-                <TableCell>{instructionStatus.issuedAt}</TableCell>
-                <TableCell>{instructionStatus.startExecutionAt}</TableCell>
-                <TableCell>{instructionStatus.endExecutionAt}</TableCell>
-                <TableCell>{instructionStatus.writeResultAt}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+<div className="card">
+  <div className="card-body">
+    <table className="table">
+      <thead className="thead-light">
+        <tr>
+          <th scope="col">Instruction</th>
+          <th scope="col">Issue</th>
+          <th scope="col">Start Execution</th>
+          <th scope="col">End Execution</th>
+          <th scope="col">Write Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        {instructionHistory.map((instructionStatus, index) => (
+          <tr key={index}>
+            <td>{instructionStatus.instruction}</td>
+            <td>{instructionStatus.issuedAt}</td>
+            <td>{instructionStatus.startExecutionAt}</td>
+            <td>{instructionStatus.endExecutionAt}</td>
+            <td>{instructionStatus.writeResultAt}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
   );
 }

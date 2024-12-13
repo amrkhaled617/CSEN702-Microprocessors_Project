@@ -22,33 +22,33 @@ export function RegisterFileView({
   prefix: string;
 }) {
   return (
-    <Card>
-      <CardHeader title={title} />
-      <CardContent>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Register Name</TableCell>
-              <TableCell>Value</TableCell>
-              <TableCell>Q</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.entries(registerFile).map(
-              ([registerName, { value, q }]) => (
-                <TableRow key={registerName}>
-                  <TableCell>
-                    {prefix}
-                    {registerName}
-                  </TableCell>
-                  <TableCell>{value}</TableCell>
-                  <TableCell>{q}</TableCell>
-                </TableRow>
-              )
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <div className="card">
+      <div className="card-header">{title}</div>
+      <div className="card-body">
+      <table className="table">
+        <thead>
+        <tr>
+          <th>Register Name</th>
+          <th>Value</th>
+          <th>Q</th>
+        </tr>
+        </thead>
+        <tbody>
+        {Object.entries(registerFile).map(
+          ([registerName, { value, q }]) => (
+          <tr key={registerName}>
+            <td>
+            {prefix}
+            {registerName}
+            </td>
+            <td>{value}</td>
+            <td>{q}</td>
+          </tr>
+          )
+        )}
+        </tbody>
+      </table>
+      </div>
+    </div>
   );
 }

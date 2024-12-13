@@ -1,5 +1,4 @@
 import React from "react";
-import { Card, CardContent, Typography } from "@mui/material";
 
 type MemoryViewProps = {
   memory: number[];
@@ -7,11 +6,26 @@ type MemoryViewProps = {
 
 export const MemoryView: React.FC<MemoryViewProps> = ({ memory }) => {
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6">Memory</Typography>
-        <pre>{JSON.stringify(memory, null, 2)}</pre>
-      </CardContent>
-    </Card>
+    <div className="card">
+      <div className="card-body">
+        <h6 className="card-title">Memory</h6>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Index</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {memory.map((value, index) => (
+              <tr key={index}>
+                <td>{index}</td>
+                <td>{value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };

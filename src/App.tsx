@@ -73,112 +73,100 @@ function App() {
     setSystemState(generateSystemState(systemSettings));
   };
 
-  const onResetClicked = () => {
-    setSystemState(null);
-  };
-
   const onNextClicked = () => {
     setSystemState((systemState) => nextSystemState(systemState!));
   };
 
   return (
-    <Container sx={{ pt: 2 }}>
+    <div className="container pt-2">
       {systemState ? (
-        <Grid container spacing={1}>
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="overline">Clock:</Typography>
-                <Typography variant="h6" marginTop={-1}>
-                  {systemState?.currentClock}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    variant="contained"
-                    onClick={onNextClicked}
-                    // disabled={
-                    //   systemState.nextIssue >= systemState.instructions.length
-                    // }
-                  >
-                    Next
-                  </Button>
-                  <Button variant="contained" onClick={onResetClicked}>
-                    Reset
-                  </Button>
-                </Stack>
-              </CardActions>
-            </Card>
-          </Grid>
+      <div className="row">
+        <div className=" mb-3">
+        <div className="card">
+          <div className="card-body">
+          <h6 className="card-subtitle mb-2 text-muted">Clock:</h6>
+          <h5 className="card-title">{systemState?.currentClock}</h5>
+          </div>
+          <div className="card-footer">
+          <div className="btn-group" role="group">
+            <button
+            className="btn btn-primary"
+            onClick={onNextClicked}
+            >
+            Next
+            </button>
+          </div>
+          </div>
+        </div>
+        </div>
 
-          <Grid item xs={12} md={6}>
-            <NotesView notes={systemState.notes} />
-          </Grid>
+        <div className=" mb-3">
+        <NotesView notes={systemState.notes} />
+        </div>
 
-          <Grid item xs={12} md={6}>
-            <InstructionListView
-              instructions={systemState.instructions}
-              currentInstructionIndex={systemState.nextIssue}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <InstructionHistoryView
-              instructionHistory={systemState.instructionHistory}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <ReservationStationView
-              entries={systemState.adderReservationStations}
-              title="Adder Reservation Stations"
-              namePrefix="A"
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <ReservationStationView
-              entries={systemState.mulReservationStations}
-              title="Multiplier Reservation Stations"
-              namePrefix="M"
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <LoadBuffersView loadBuffers={systemState.loadBuffers} />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <StoreBuffersView storeBuffers={systemState.storeBuffers} />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <RegisterFileView
-              registerFile={systemState.fpRegisters}
-              title="FP Register File"
-              prefix="F"
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <RegisterFileView
-              registerFile={systemState.intRegisters}
-              title="Int Register File"
-              prefix="R"
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <CacheView cache={systemState.cache} />
-          </Grid>
-          {/* Optionally add a MemoryView component to display memory state */}
-          <Grid item xs={12} md={6}>
-            <MemoryView memory={systemState.memory} />
-          </Grid>
-        </Grid>
-      ) : (
-        <SystemSettingsView
-          onRunClicked={onRunClicked}
-          systemSettings={systemSettings}
+        <div className=" mb-3">
+        <InstructionListView
+          instructions={systemState.instructions}
+          currentInstructionIndex={systemState.nextIssue}
         />
+        </div>
+
+        <div className=" mb-3">
+        <InstructionHistoryView
+          instructionHistory={systemState.instructionHistory}
+        />
+        </div>
+
+        <div className=" mb-3">
+        <ReservationStationView
+          entries={systemState.adderReservationStations}
+          title="Adder Reservation Stations"
+          namePrefix="A"
+        />
+        </div>
+
+        <div className=" mb-3">
+        <ReservationStationView
+          entries={systemState.mulReservationStations}
+          title="Multiplier Reservation Stations"
+          namePrefix="M"
+        />
+        </div>
+        <div className=" mb-3">
+        <LoadBuffersView loadBuffers={systemState.loadBuffers} />
+        </div>
+        <div className=" mb-3">
+        <StoreBuffersView storeBuffers={systemState.storeBuffers} />
+        </div>
+        <div className=" mb-3">
+        <RegisterFileView
+          registerFile={systemState.fpRegisters}
+          title="FP Register File"
+          prefix="F"
+        />
+        </div>
+        <div className=" mb-3">
+        <RegisterFileView
+          registerFile={systemState.intRegisters}
+          title="Int Register File"
+          prefix="R"
+        />
+        </div>
+        <div className=" mb-3">
+        <CacheView cache={systemState.cache} />
+        </div>
+        {/* Optionally add a MemoryView component to display memory state */}
+        <div className=" mb-3">
+        <MemoryView memory={systemState.memory} />
+        </div>
+      </div>
+      ) : (
+      <SystemSettingsView
+        onRunClicked={onRunClicked}
+        systemSettings={systemSettings}
+      />
       )}
-    </Container>
+    </div>
   );
 }
 

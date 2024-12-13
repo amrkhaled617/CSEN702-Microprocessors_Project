@@ -1,11 +1,3 @@
-import {
-  Card, CardContent,
-  CardHeader, Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow
-} from "@mui/material";
 import { StoreBufferEntry } from "../types";
 
 export function StoreBuffersView({
@@ -14,32 +6,34 @@ export function StoreBuffersView({
   storeBuffers: StoreBufferEntry[];
 }) {
   return (
-    <Card>
-      <CardHeader title="Store Buffers" />
-      <CardContent>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Time Remaining</TableCell>
-              <TableCell>Busy</TableCell>
-              <TableCell>Address</TableCell>
-              <TableCell>V</TableCell>
-              <TableCell>Q</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {storeBuffers.map((station, index) => (
-              <TableRow key={index}>
-                <TableCell>{station.timeRemaining}</TableCell>
-                <TableCell>{station.busy ? "Yes" : "No"}</TableCell>
-                <TableCell>{station.address}</TableCell>
-                <TableCell>{station.v}</TableCell>
-                <TableCell>{station.q}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <div className="card">
+      
+      <div className="card-header">Store Buffers</div>
+      <div className="card-body">
+      <table className="table">
+        <thead>
+        <tr>
+          <th>Time Remaining</th>
+          <th>Busy</th>
+          <th>Address</th>
+          <th>V</th>
+          <th>Q</th>
+        </tr>
+        </thead>
+        <tbody>
+        {storeBuffers.map((station, index) => (
+          <tr key={index}>
+          <td>{station.timeRemaining}</td>
+          <td>{station.busy ? "Yes" : "No"}</td>
+          <td>{station.address}</td>
+          <td>{station.v}</td>
+          <td>{station.q}</td>
+          </tr>
+        ))}
+        </tbody>
+      </table>
+      </div>
+    </div>
+    
   );
 }

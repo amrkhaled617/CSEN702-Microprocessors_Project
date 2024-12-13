@@ -1,11 +1,11 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+// import {
+//   button,
+//   div ,
+//   div,
+//   div,
+//   input,
+//   div,
+// } from "@mui/material";
 import { useState } from "react";
 import { SystemSettings } from "../types";
 
@@ -48,304 +48,325 @@ export function SystemSettingsView({
   );
 
   return (
-    <Card>
-      <CardContent>
-        <Stack spacing={2}>
-          <TextField
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            label="The Assembly Code"
-            multiline
-          />
-
-          <TextField
-            type="number"
-            value={numOfAdderReservationStations}
-            label="Number of Adder Reservation Stations"
-            onChange={(e) => setNumOfAdderReservationStations(+e.target.value)}
-          />
-          <TextField
-            type="number"
-            value={numOfMulReservationStations}
-            label="Number of Multipler Reservation Stations"
-            onChange={(e) => setNumOfMulReservationStations(+e.target.value)}
-          />
-          <TextField
-            type="number"
-            value={numOfLoadBuffers}
-            label="Number of Load Reservation Stations"
-            onChange={(e) => setNumOfLoadBuffers(+e.target.value)}
-          />
-          <TextField
-            type="number"
-            value={numOfStoreBuffers}
-            label="Number of Store Reservation Stations"
-            onChange={(e) => setNumOfStoreBuffers(+e.target.value)}
-          />
-          <TextField
-            type="number"
-            value={numOfFPRegisters}
-            label="Number of FP Registers"
-            onChange={(e) => setNumOfFPRegisters(+e.target.value)}
-          />
-          <TextField
-            type="number"
-            value={numOfIntRegisters}
-            label="Number of Int Registers"
-            onChange={(e) => setNumOfIntRegisters(+e.target.value)}
-          />
-
-          <Typography variant="h6">Latencies</Typography>
-          {Object.entries(latencies).map(([instructionType, latency]) => (
-            <TextField
-              key={instructionType}
-              type="number"
-              value={latency}
-              label={`Latency of ${instructionType}`}
-              onChange={(e) =>
-                setLatencies((latencies) => ({
-                  ...latencies,
-                  [instructionType]: +e.target.value,
-                }))
-              }
-              disabled={
-                instructionType === "BNEZ" || instructionType === "ADDI"
-              }
+    <div className="container w-100">
+      <div>
+        <div>
+            <label>
+            The Assembly Code
+            <textarea
+            className="form-control"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="The Assembly Code"
+              rows={5}
+              cols={10}
             />
+            </label>
+
+          <label>
+            Number of Adder Reservation Stations
+            <input
+              type="number"
+              value={numOfAdderReservationStations}
+              onChange={(e) => setNumOfAdderReservationStations(+e.target.value)}
+            />
+          </label>
+
+          <label>
+            Number of Multipler Reservation Stations
+            <input
+              type="number"
+              value={numOfMulReservationStations}
+              onChange={(e) => setNumOfMulReservationStations(+e.target.value)}
+            />
+          </label>
+
+          <label>
+            Number of Load Reservation Stations
+            <input
+              type="number"
+              value={numOfLoadBuffers}
+              onChange={(e) => setNumOfLoadBuffers(+e.target.value)}
+            />
+          </label>
+
+          <label>
+            Number of Store Reservation Stations
+            <input
+              type="number"
+              value={numOfStoreBuffers}
+              onChange={(e) => setNumOfStoreBuffers(+e.target.value)}
+            />
+          </label>
+
+          <label>
+            Number of FP Registers
+            <input
+              type="number"
+              value={numOfFPRegisters}
+              onChange={(e) => setNumOfFPRegisters(+e.target.value)}
+            />
+          </label>
+
+          <label>
+            Number of Int Registers
+            <input
+              type="number"
+              value={numOfIntRegisters}
+              onChange={(e) => setNumOfIntRegisters(+e.target.value)}
+            />
+          </label>
+
+          <h6>Latencies</h6>
+          {Object.entries(latencies).map(([instructionType, latency]) => (
+            <label key={instructionType}>
+              Latency of {instructionType}
+              <input
+          type="number"
+          value={latency}
+          onChange={(e) =>
+            setLatencies((latencies) => ({
+              ...latencies,
+              [instructionType]: +e.target.value,
+            }))
+          }
+          disabled={instructionType === "BNEZ" || instructionType === "ADDI"}
+              />
+            </label>
           ))}
 
-          <Stack direction="row" spacing={1} justifyContent="space-between">
-            <Typography variant="h6">
-              FP Register File Initial Values
-            </Typography>
-            <Button
-              variant="contained"
+          <div className="d-flex flex-row">
+            <h6>FP Register File Initial Values</h6>
+            <button
+              className="btn btn-primary"
               onClick={() =>
-                setFPRegisterFileInitialValues((values) => [
-                  ...values,
-                  { registerName: 0, value: 0 },
-                ])
+          setFPRegisterFileInitialValues((values) => [
+            ...values,
+            { registerName: 0, value: 0 },
+          ])
               }
             >
               Add
-            </Button>
-          </Stack>
+            </button>
+          </div>
           {fpRegisterFileInitialValues.map(({ registerName, value }, index) => (
-            <Stack direction="row" spacing={1} key={index}>
-              <TextField
-                type="number"
-                value={registerName}
-                label={`Register Name`}
-                fullWidth
-                onChange={(e) =>
-                  setFPRegisterFileInitialValues((values) => [
-                    ...values.slice(0, index),
-                    {
-                      registerName: +e.target.value,
-                      value,
-                    },
-                    ...values.slice(index + 1),
-                  ])
-                }
-              />
-              <TextField
-                type="number"
-                value={value}
-                label={`Register Value`}
-                fullWidth
-                onChange={(e) =>
-                  setFPRegisterFileInitialValues((values) => [
-                    ...values.slice(0, index),
-                    {
-                      registerName,
-                      value: +e.target.value,
-                    },
-                    ...values.slice(index + 1),
-                  ])
-                }
-              />
-              <Button
-                variant="contained"
-                onClick={() =>
-                  setFPRegisterFileInitialValues((values) => [
-                    ...values.slice(0, index),
-                    ...values.slice(index + 1),
-                  ])
-                }
-                color="error"
+            <div className="d-flex flex-row" key={index}>
+              <label>
+          Register Name
+          <input
+            type="number"
+            value={registerName}
+            onChange={(e) =>
+              setFPRegisterFileInitialValues((values) => [
+                ...values.slice(0, index),
+                {
+            registerName: +e.target.value,
+            value,
+                },
+                ...values.slice(index + 1),
+              ])
+            }
+          />
+              </label>
+              <label>
+          Register Value
+          <input
+            type="number"
+            value={value}
+            onChange={(e) =>
+              setFPRegisterFileInitialValues((values) => [
+                ...values.slice(0, index),
+                {
+            registerName,
+            value: +e.target.value,
+                },
+                ...values.slice(index + 1),
+              ])
+            }
+          />
+              </label>
+              <button
+          className="btn btn-danger"
+          onClick={() =>
+            setFPRegisterFileInitialValues((values) => [
+              ...values.slice(0, index),
+              ...values.slice(index + 1),
+            ])
+          }
+          color="error"
               >
-                Delete
-              </Button>
-            </Stack>
+          Delete
+              </button>
+            </div>
           ))}
 
-          <Stack direction="row" spacing={1} justifyContent="space-between">
-            <Typography variant="h6">
-              Int Register File Initial Values
-            </Typography>
-            <Button
-              variant="contained"
+          <div className="d-flex flex-row ">
+            <h6>Int Register File Initial Values</h6>
+            <button
+              className="btn btn-primary"
               onClick={() =>
-                setIntRegisterFileInitialValues((values) => [
-                  ...values,
-                  { registerName: 0, value: 0 },
-                ])
+          setIntRegisterFileInitialValues((values) => [
+            ...values,
+            { registerName: 0, value: 0 },
+          ])
               }
             >
               Add
-            </Button>
-          </Stack>
-          {intRegisterFileInitialValues.map(
-            ({ registerName, value }, index) => (
-              <Stack direction="row" spacing={1} key={index}>
-                <TextField
-                  type="number"
-                  value={registerName}
-                  label={`Register Name`}
-                  fullWidth
-                  onChange={(e) =>
-                    setIntRegisterFileInitialValues((values) => [
-                      ...values.slice(0, index),
-                      {
-                        registerName: +e.target.value,
-                        value,
-                      },
-                      ...values.slice(index + 1),
-                    ])
-                  }
-                />
-                <TextField
-                  type="number"
-                  value={value}
-                  label={`Register Value`}
-                  fullWidth
-                  onChange={(e) =>
-                    setIntRegisterFileInitialValues((values) => [
-                      ...values.slice(0, index),
-                      {
-                        registerName,
-                        value: +e.target.value,
-                      },
-                      ...values.slice(index + 1),
-                    ])
-                  }
-                />
-                <Button
-                  variant="contained"
-                  onClick={() =>
-                    setIntRegisterFileInitialValues((values) => [
-                      ...values.slice(0, index),
-                      ...values.slice(index + 1),
-                    ])
-                  }
-                  color="error"
-                >
-                  Delete
-                </Button>
-              </Stack>
-            )
-          )}
+            </button>
+          </div>
+          {intRegisterFileInitialValues.map(({ registerName, value }, index) => (
+            <div className="d-flex flex-row" key={index}>
+              <label>
+          Register Name
+          <input
+            type="number"
+            value={registerName}
+            onChange={(e) =>
+              setIntRegisterFileInitialValues((values) => [
+                ...values.slice(0, index),
+                {
+            registerName: +e.target.value,
+            value,
+                },
+                ...values.slice(index + 1),
+              ])
+            }
+          />
+              </label>
+              <label>
+          Register Value
+          <input
+            type="number"
+            value={value}
+            onChange={(e) =>
+              setIntRegisterFileInitialValues((values) => [
+                ...values.slice(0, index),
+                {
+            registerName,
+            value: +e.target.value,
+                },
+                ...values.slice(index + 1),
+              ])
+            }
+          />
+              </label>
+              <button
+          className="btn btn-danger"
+          onClick={() =>
+            setIntRegisterFileInitialValues((values) => [
+              ...values.slice(0, index),
+              ...values.slice(index + 1),
+            ])
+          }
+          color="error"
+              >
+          Delete
+              </button>
+            </div>
+          ))}
 
-<Stack direction="row" spacing={1} justifyContent="space-between">
-  <Typography variant="h6">Cache Initial Values</Typography>
-  <Button
-    variant="contained"
-    onClick={() =>
-      setCacheInitialValues((values) => [
-        ...values,
-        { address: 0, value: 0 },
-      ])
-    }
-  >
-    Add
-  </Button>
-</Stack>
-{cacheInitialValues.map(({ address, value }, index) => (
-  <Stack direction="row" spacing={1} key={index}>
-    <TextField
-      type="number"
-      value={address}
-      label={`Address`}
-      fullWidth
-      onChange={(e) =>
-        setCacheInitialValues((values) => [
-          ...values.slice(0, index),
-          {
+          <div className="d-flex flex-row ">
+            <h6>Cache Initial Values</h6>
+            <button
+              className="btn btn-primary"
+              onClick={() =>
+          setCacheInitialValues((values) => [
+            ...values,
+            { address: 0, value: 0 },
+          ])
+              }
+            >
+              Add
+            </button>
+          </div>
+          {cacheInitialValues.map(({ address, value }, index) => (
+            <div className="d-flex flex-row" key={index}>
+              <label>
+          Address
+          <input
+            type="number"
+            value={address}
+            onChange={(e) =>
+              setCacheInitialValues((values) => [
+                ...values.slice(0, index),
+                {
             address: +e.target.value,
             value,
-          },
-          ...values.slice(index + 1),
-        ])
-      }
-    />
-    <TextField
-      type="number"
-      value={value}
-      label={`Value`}
-      fullWidth
-      onChange={(e) =>
-        setCacheInitialValues((values) => [
-          ...values.slice(0, index),
-          {
+                },
+                ...values.slice(index + 1),
+              ])
+            }
+          />
+              </label>
+              <label>
+          Value
+          <input
+            type="number"
+            value={value}
+            onChange={(e) =>
+              setCacheInitialValues((values) => [
+                ...values.slice(0, index),
+                {
             address,
             value: +e.target.value,
-          },
-          ...values.slice(index + 1),
-        ])
-      }
-    />
-    <Button
-      variant="contained"
-      onClick={() =>
-        setCacheInitialValues((values) => [
-          ...values.slice(0, index),
-          ...values.slice(index + 1),
-        ])
-      }
-      color="error"
-    >
-      Delete
-    </Button>
-  </Stack>
-))}
+                },
+                ...values.slice(index + 1),
+              ])
+            }
+          />
+              </label>
+              <button
+          className="btn btn-danger"
+          onClick={() =>
+            setCacheInitialValues((values) => [
+              ...values.slice(0, index),
+              ...values.slice(index + 1),
+            ])
+          }
+          color="error"
+              >
+          Delete
+              </button>
+            </div>
+          ))}
 
-          <Button
-            variant="contained"
+          <button
+            className="btn btn-success"
             onClick={() =>
               onRunClicked({
-                code,
-                numOfAdderReservationStations,
-                numOfMulReservationStations,
-                numOfLoadBuffers,
-                numOfStoreBuffers,
-                numOfFPRegisters,
-                numOfIntRegisters,
-                latencies,
-                fpRegisterFileInitialValues: fpRegisterFileInitialValues.map(
-                  ({ registerName, value }) => ({
-                    registerName: +registerName,
-                    value: +value,
-                  })
-                ),
-                intRegisterFileInitialValues: intRegisterFileInitialValues.map(
-                  ({ registerName, value }) => ({
-                    registerName: +registerName,
-                    value: +value,
-                  })
-                ),
-                cacheInitialValues: cacheInitialValues.map(
-                  ({ address, value }) => ({
-                    address: +address,
-                    value: +value,
-                  })
-                ),
+          code,
+          numOfAdderReservationStations,
+          numOfMulReservationStations,
+          numOfLoadBuffers,
+          numOfStoreBuffers,
+          numOfFPRegisters,
+          numOfIntRegisters,
+          latencies,
+          fpRegisterFileInitialValues: fpRegisterFileInitialValues.map(
+            ({ registerName, value }) => ({
+              registerName: +registerName,
+              value: +value,
+            })
+          ),
+          intRegisterFileInitialValues: intRegisterFileInitialValues.map(
+            ({ registerName, value }) => ({
+              registerName: +registerName,
+              value: +value,
+            })
+          ),
+          cacheInitialValues: cacheInitialValues.map(
+            ({ address, value }) => ({
+              address: +address,
+              value: +value,
+            })
+          ),
               })
             }
           >
             Run
-          </Button>
-        </Stack>
-      </CardContent>
-    </Card>
+          </button>
+        </div>
+      </div>
+    </div >
   );
 }

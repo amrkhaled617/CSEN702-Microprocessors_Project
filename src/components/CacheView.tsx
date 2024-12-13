@@ -1,14 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "@mui/material";
-
 import { CacheBlock } from "../types";
 
 export function CacheView({
@@ -19,40 +8,40 @@ export function CacheView({
   };
 }) {
   return (
-    <Card>
-      <CardHeader title="Cache" />
-      <CardContent>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Block Index</TableCell>
-              <TableCell>Valid</TableCell>
-              <TableCell>Address</TableCell>
-              <TableCell>Data</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.entries(cache)
-              .sort(([index1], [index2]) =>
-                Number(index1) > Number(index2) ? 1 : -1
-              )
-              .map(([index, block]) => (
-                <TableRow key={index}>
-                  <TableCell>{index}</TableCell>
-                  <TableCell>{block.valid ? "Yes" : "No"}</TableCell>
-                  <TableCell>{block.address}</TableCell>
-                  <TableCell>
-                    {block.data.map((value, offset) => (
-                      <div key={offset}>
-                        Offset {offset}: {value} 
-                      </div>
-                    ))}
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <div className="card">
+      <div className="card-header">Cache</div>
+      <div className="card-body">
+      <table className="table">
+        <thead>
+        <tr>
+          <th>Block Index</th>
+          <th>Valid</th>
+          <th>Address</th>
+          <th>Data</th>
+        </tr>
+        </thead>
+        <tbody>
+        {Object.entries(cache)
+          .sort(([index1], [index2]) =>
+          Number(index1) > Number(index2) ? 1 : -1
+          )
+          .map(([index, block]) => (
+          <tr key={index}>
+            <td>{index}</td>
+            <td>{block.valid ? "Yes" : "No"}</td>
+            <td>{block.address}</td>
+            <td>
+            {block.data.map((value, offset) => (
+              <div key={offset}>
+              Offset {offset}: {value}
+              </div>
+            ))}
+            </td>
+          </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+    </div>
   );
 }
