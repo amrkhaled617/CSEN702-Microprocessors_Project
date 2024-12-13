@@ -7,7 +7,56 @@ import {
   SystemState,
   CacheBlock
 } from "./types";
-function storeValueInMemory(memory: number[], address: number, value: number) {
+function storeValueInMemory(memory: number[], cache: { [blockIndex: number]: CacheBlock }, address: number, value: number, blockSize: number) {
+  const blockIndex = Math.floor(address / blockSize);
+  const blockOffset = address % blockSize;
+
+  // Search for the address of the first byte of the word in the cache
+  let cacheBlockIndex = -1;
+  for (let i = 0; i < 32; i++) { // Assuming cache size is 32
+    if (cache[i] && cache[i].valid && cache[i].address === address) {
+      cacheBlockIndex = i;
+      break;
+    }
+  }
+
+  if (cacheBlockIndex !== -1) {
+    // Address found in cache, overwrite the data in both cache and memory
+    cache[cacheBlockIndex].data[blockOffset] = value & 0xFF; // Least significant byte
+    cache[cacheBlockIndex].data[blockOffset + 1] = (value >> 8) & 0xFF;
+    cache[cacheBlockIndex].data[blockOffset + 2] = (value >> 16) & 0xFF;
+    cache[cacheBlockIndex].data[blockOffset + 3] = (value >> 24) & 0xFF; // Most significant byte
+    cache[cacheBlockIndex].valid = true;
+  } else {
+    // Address not found in cache, search for an empty cache block
+    let emptyBlockIndex = -1;
+    for (let i = 0; i < 32; i++) { // Assuming cache size is 32
+      if (!cache[i] || !cache[i].valid) {
+        emptyBlockIndex = i;
+        break;
+      }
+    }
+
+    if (emptyBlockIndex === -1) {
+      throw new Error("Cache is full");
+    }
+
+    if (!cache[emptyBlockIndex]) {
+      cache[emptyBlockIndex] = {
+        valid: false,
+        data: new Array(blockSize).fill(0),
+        address: address, // Store the memory address of the first byte of the word
+      };
+    }
+
+    // Store the data in the empty cache block
+    for (let i = 0; i < blockSize; i++) {
+      cache[emptyBlockIndex].data[i] = memory[address + i];
+    }
+    cache[emptyBlockIndex].valid = true;
+  }
+
+  // Store the data in memory
   memory[address] = value & 0xFF; // Least significant byte
   memory[address + 1] = (value >> 8) & 0xFF;
   memory[address + 2] = (value >> 16) & 0xFF;
@@ -475,27 +524,7 @@ function executeStage(newState: SystemState) {
     }
   
     if (rs.timeRemaining === 0) {
-      const blockIndex = Math.floor(rs.address / 4);
-      const blockOffset = rs.address % 4;
-      if (!newState.cache[blockIndex]) {
-        newState.cache[blockIndex] = {
-          valid: false,
-          data: new Array(4).fill(0),
-          address: rs.address, // Store the memory address of the first byte of the word
-        };
-      }
-      if (newState.cache[blockIndex].valid) {
-        storeValueInCache(newState.cache, newState.memory, rs.address, 4);
-      } else {
-        // Cache miss, load block from memory
-        for (let i = 0; i < 4; i++) {
-          newState.cache[blockIndex].data[i] = newState.memory[blockIndex * 4 + i];
-        }
-        newState.cache[blockIndex].valid = true;
-        newState.cache[blockIndex].address = rs.address; // Store the memory address of the first byte of the word
-        storeValueInCache(newState.cache, newState.memory, rs.address, 4);
-      }
-      storeValueInMemory(newState.memory, rs.address, rs.v);
+      storeValueInMemory(newState.memory, newState.cache, rs.address, rs.v, 4);
     }
   }
 
