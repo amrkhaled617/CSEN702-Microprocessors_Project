@@ -5,16 +5,45 @@ import {
   StoreBufferEntry,
   SystemSettings,
   SystemState,
+  CacheBlock
 } from "./types";
 function storeValueInMemory(memory: number[], address: number, value: number) {
-  const blockIndex = Math.floor(address / 4) * 4; // Align to the start of a 4-byte block
-
-  memory[blockIndex] = value & 0xFF; // Least significant byte
-  memory[blockIndex + 1] = (value >> 8) & 0xFF;
-  memory[blockIndex + 2] = (value >> 16) & 0xFF;
-  memory[blockIndex + 3] = (value >> 24) & 0xFF; // Most significant byte
+  memory[address] = value & 0xFF; // Least significant byte
+  memory[address + 1] = (value >> 8) & 0xFF;
+  memory[address + 2] = (value >> 16) & 0xFF;
+  memory[address + 3] = (value >> 24) & 0xFF; // Most significant byte
 }
+function storeValueInCache(cache: { [blockIndex: number]: CacheBlock }, memory: number[], address: number, blockSize: number) {
+  const blockIndex = Math.floor(address / blockSize);
+  const blockOffset = address % blockSize;
 
+  // Find the first empty block in the cache
+  let emptyBlockIndex = -1;
+  for (let i = 0; i < 32; i++) { // Assuming cache size is 32
+    if (!cache[i] || !cache[i].valid) {
+      emptyBlockIndex = i;
+      break;
+    }
+  }
+
+  if (emptyBlockIndex === -1) {
+    throw new Error("Cache is full");
+  }
+
+  if (!cache[emptyBlockIndex]) {
+    cache[emptyBlockIndex] = {
+      valid: false,
+      data: new Array(blockSize).fill(0),
+      address: address, // Store the memory address of the first byte of the word
+    };
+  }
+
+  // Load four bytes from memory starting from the given address
+  for (let i = 0; i < blockSize; i++) {
+    cache[emptyBlockIndex].data[i] = memory[address + i];
+  }
+  cache[emptyBlockIndex].valid = true;
+}
 function loadValueFromMemory(memory: number[], address: number): number {
   const blockIndex = Math.floor(address / 4) * 4; // Align to the start of a 4-byte block
 
@@ -24,6 +53,22 @@ function loadValueFromMemory(memory: number[], address: number): number {
     ((memory[blockIndex + 2] & 0xFF) << 16) |
     ((memory[blockIndex + 3] & 0xFF) << 24)
   );
+}
+
+function loadValueFromCache(cache: { [blockIndex: number]: CacheBlock }, address: number, blockSize: number): number | null {
+  const blockIndex = Math.floor(address / blockSize);
+  const blockOffset = address % blockSize;
+
+  if (cache[blockIndex] && cache[blockIndex].valid && cache[blockIndex].address === address) {
+    return (
+      (cache[blockIndex].data[blockOffset] & 0xFF) |
+      ((cache[blockIndex].data[blockOffset + 1] & 0xFF) << 8) |
+      ((cache[blockIndex].data[blockOffset + 2] & 0xFF) << 16) |
+      ((cache[blockIndex].data[blockOffset + 3] & 0xFF) << 24)
+    );
+  }
+
+  return null;
 }
 export function generateSystemState(
   systemSettings: SystemSettings
@@ -46,9 +91,14 @@ export function generateSystemState(
   };
   const testBlockIndex = 0; // Example block index
   const testBlockValue = 4;
-  for (let i = 0; i < 6; i++) {
-    systemState.memory[testBlockIndex * 4 + i] = testBlockValue;
-  }
+  
+    systemState.memory[testBlockIndex * 4] = 7;
+    systemState.memory[testBlockIndex * 4+1] = 5;
+    systemState.memory[testBlockIndex * 4+2] = 33;
+    systemState.memory[testBlockIndex * 4+3] = 4;
+    systemState.memory[testBlockIndex * 4+4] = 77;
+    systemState.memory[testBlockIndex * 4+5] = 61;
+
 
   for (let i = 0; i < systemSettings.numOfAdderReservationStations; i++) {
     systemState.adderReservationStations.push({
@@ -120,7 +170,8 @@ export function generateSystemState(
     if (!systemState.cache[blockIndex]) {
       systemState.cache[blockIndex] = {
         valid: false,
-        data: new Array(6).fill(0),
+        data: new Array(4).fill(0),
+        address:0,
       };
     }
   
@@ -429,18 +480,20 @@ function executeStage(newState: SystemState) {
       if (!newState.cache[blockIndex]) {
         newState.cache[blockIndex] = {
           valid: false,
-          data: new Array(6).fill(0),
+          data: new Array(4).fill(0),
+          address: rs.address, // Store the memory address of the first byte of the word
         };
       }
       if (newState.cache[blockIndex].valid) {
-        storeValueInMemory(newState.cache[blockIndex].data, blockOffset, rs.v);
+        storeValueInCache(newState.cache, newState.memory, rs.address, 4);
       } else {
         // Cache miss, load block from memory
         for (let i = 0; i < 4; i++) {
           newState.cache[blockIndex].data[i] = newState.memory[blockIndex * 4 + i];
         }
         newState.cache[blockIndex].valid = true;
-        storeValueInMemory(newState.cache[blockIndex].data, blockOffset, rs.v);
+        newState.cache[blockIndex].address = rs.address; // Store the memory address of the first byte of the word
+        storeValueInCache(newState.cache, newState.memory, rs.address, 4);
       }
       storeValueInMemory(newState.memory, rs.address, rs.v);
     }
@@ -488,21 +541,26 @@ function executeStage(newState: SystemState) {
     if (rs.timeRemaining === 0) {
       const blockIndex = Math.floor(rs.address / 4);
       const blockOffset = rs.address % 4;
+
+      // Ensure the cache block is initialized
       if (!newState.cache[blockIndex]) {
         newState.cache[blockIndex] = {
           valid: false,
-          data: new Array(6).fill(0),
+          data: new Array(4).fill(0),
+          address: rs.address, // Store the memory address of the first byte of the word
         };
       }
-      if (newState.cache[blockIndex].valid) {
-        rs.result = loadValueFromMemory(newState.cache[blockIndex].data, blockOffset);
+
+      // Search for the memory address of the first byte of the word in the cache
+      const cachedValue = loadValueFromCache(newState.cache, rs.address, 4);
+      if (cachedValue !== null) {
+        rs.result = cachedValue;
       } else {
         // Cache miss, load block from memory
-        for (let i = 0; i < 4; i++) {
-          newState.cache[blockIndex].data[i] = newState.memory[blockIndex * 4 + i];
-        }
+        storeValueInCache(newState.cache, newState.memory, rs.address, 4);
         newState.cache[blockIndex].valid = true;
-        rs.result = loadValueFromMemory(newState.cache[blockIndex].data, blockOffset);
+        newState.cache[blockIndex].address = rs.address; // Store the memory address of the first byte of the word
+        rs.result = loadValueFromMemory(newState.memory, rs.address);
         newState.notes.push(`Compulsory miss at address ${rs.address}`);
       }
     }

@@ -125,4 +125,5 @@ export type SystemState = {
 export type CacheBlock = {
   valid: boolean;
   data: number[];
+  address: number; // Memory address of the first byte of the word
 };

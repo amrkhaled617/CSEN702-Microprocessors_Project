@@ -9,10 +9,7 @@ import {
   TableRow,
 } from "@mui/material";
 
-type CacheBlock = {
-  valid: boolean;
-  data: number[];
-};
+import { CacheBlock } from "../types";
 
 export function CacheView({
   cache,
@@ -30,6 +27,7 @@ export function CacheView({
             <TableRow>
               <TableCell>Block Index</TableCell>
               <TableCell>Valid</TableCell>
+              <TableCell>Address</TableCell>
               <TableCell>Data</TableCell>
             </TableRow>
           </TableHead>
@@ -42,10 +40,11 @@ export function CacheView({
                 <TableRow key={index}>
                   <TableCell>{index}</TableCell>
                   <TableCell>{block.valid ? "Yes" : "No"}</TableCell>
+                  <TableCell>{block.address}</TableCell>
                   <TableCell>
                     {block.data.map((value, offset) => (
                       <div key={offset}>
-                        Offset {offset}: {value}
+                        Offset {offset}: {value} 
                       </div>
                     ))}
                   </TableCell>
