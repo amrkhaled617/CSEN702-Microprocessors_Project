@@ -160,10 +160,10 @@ function issueStage(newState: SystemState) {
   rs.busy = true;
   rs.historyIndex = newState.instructionHistory.length - 1;
 
-  if (instructionType === InstructionType.L_D) {
+  if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_S || instructionType === InstructionType.LD || instructionType === InstructionType.LW) {
     const typedRS = reservationStations![index] as LoadBufferEntry;
     typedRS.address = Number(source1);
-  } else if (instructionType == InstructionType.S_D) {
+  } else if (instructionType == InstructionType.S_D ||instructionType == InstructionType.S_S || instructionType == InstructionType.SD || instructionType == InstructionType.SW) {
     const typedRS = reservationStations![index] as StoreBufferEntry;
     typedRS.address = Number(source1);
 
@@ -203,6 +203,9 @@ function issueStage(newState: SystemState) {
 
   if (
     instructionType != InstructionType.S_D &&
+    instructionType != InstructionType.SW &&
+    instructionType != InstructionType.SD &&
+    instructionType != InstructionType.S_S &&
     instructionType != InstructionType.BNEZ  &&
     instructionType != InstructionType.BEQ &&
     instructionType != InstructionType.BNE
@@ -256,12 +259,12 @@ function getReservationStationsForInstruction(
       reservationStations: newState.mulReservationStations,
       prefix: "M",
     };
-  } else if (instructionType === InstructionType.L_D) {
+  } else if (instructionType === InstructionType.L_D || instructionType === InstructionType.L_S || instructionType === InstructionType.LD || instructionType === InstructionType.LW) {
     return {
       reservationStations: newState.loadBuffers,
       prefix: "L",
     };
-  } else if (instructionType === InstructionType.S_D) {
+  } else if (instructionType === InstructionType.S_D || instructionType === InstructionType.S_S || instructionType === InstructionType.SD || instructionType === InstructionType.SW) {
     return {
       reservationStations: newState.storeBuffers,
       prefix: "S",
@@ -348,12 +351,25 @@ function executeStage(newState: SystemState) {
 
   for (const rs of newState.storeBuffers) {
     if (!rs.busy || rs.q != "") continue;
-
+  
     const issuedAt = newState.instructionHistory[rs.historyIndex!].issuedAt;
     if (newState.currentClock == issuedAt) continue;
-
-    const latency = newState.latencies[InstructionType.S_D];
-
+  
+    const instruction = newState.instructionHistory[rs.historyIndex!].instruction;
+    const { instructionType } = parseInstruction(instruction);
+    let latency: number | null = null;
+  
+    if (
+      instructionType === InstructionType.S_D ||
+      instructionType === InstructionType.SD ||
+      instructionType === InstructionType.S_S ||
+      instructionType === InstructionType.SW
+    ) {
+      latency = newState.latencies[InstructionType.S_D]; // Assuming all store instructions have the same latency
+    }
+  
+    if (latency === null) continue; // Skip if latency is not set
+  
     if (rs.timeRemaining == null) {
       rs.timeRemaining = latency;
       newState.instructionHistory[rs.historyIndex!].startExecutionAt =
@@ -363,7 +379,7 @@ function executeStage(newState: SystemState) {
     } else {
       rs.timeRemaining--;
     }
-
+  
     if (rs.timeRemaining === 0) {
       newState.cache[rs.address] = rs.v;
     }
@@ -371,23 +387,35 @@ function executeStage(newState: SystemState) {
 
   for (const rs of newState.loadBuffers) {
     if (!rs.busy) continue;
-
+  
     const issuedAt = newState.instructionHistory[rs.historyIndex!].issuedAt;
     if (newState.currentClock == issuedAt) continue;
-
-    const latency = newState.latencies[InstructionType.L_D];
-
+  
+    const instruction = newState.instructionHistory[rs.historyIndex!].instruction;
+    const { instructionType } = parseInstruction(instruction);
+    let latency: number | null = null;
+  
+    if (
+      instructionType === InstructionType.L_D ||
+      instructionType === InstructionType.LD ||
+      instructionType === InstructionType.L_S ||
+      instructionType === InstructionType.LW
+    ) {
+      latency = newState.latencies[InstructionType.L_D]; // Assuming all load instructions have the same latency
+    }
+  
+    if (latency === null) continue; // Skip if latency is not set
+  
     if (rs.timeRemaining == null) {
       rs.timeRemaining = latency;
       newState.instructionHistory[rs.historyIndex!].startExecutionAt =
         newState.currentClock;
-
       newState.instructionHistory[rs.historyIndex!].endExecutionAt =
         newState.currentClock + latency - 1;
     } else {
       rs.timeRemaining--;
     }
-
+  
     if (rs.timeRemaining === 0) {
       rs.result = newState.cache[rs.address] ?? 0;
     }

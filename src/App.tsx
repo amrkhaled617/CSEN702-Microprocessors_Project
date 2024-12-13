@@ -43,7 +43,13 @@ function App() {
       [InstructionType.DIV_D]: 8,
       [InstructionType.DIV_S]: 8,
       [InstructionType.L_D]: 2,
+      [InstructionType.L_S]: 2,
+      [InstructionType.LD]: 2,
+      [InstructionType.LW]: 2,
       [InstructionType.S_D]: 2,
+      [InstructionType.SD]: 2,
+      [InstructionType.SW]: 2,
+      [InstructionType.S_S]: 2,
       [InstructionType.SUBI]: 1,
 
       [InstructionType.ADDI]: 1,
