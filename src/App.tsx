@@ -22,7 +22,7 @@ import { InstructionListView } from "./components/InstructionListView";
 import { NotesView } from "./components/NotesView";
 import { CacheView } from "./components/CacheView";
 import { RegisterFileView } from "./components/RegisterFileView";
-
+import { MemoryView } from "./components/MemoryView";
 function App() {
   const [systemSettings, setSystemSettings] = useState<SystemSettings>({
     code: "",
@@ -166,6 +166,10 @@ function App() {
           </Grid>
           <Grid item xs={12} md={6}>
             <CacheView cache={systemState.cache} />
+          </Grid>
+          {/* Optionally add a MemoryView component to display memory state */}
+          <Grid item xs={12} md={6}>
+            <MemoryView memory={systemState.memory} />
           </Grid>
         </Grid>
       ) : (

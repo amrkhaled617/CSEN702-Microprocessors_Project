@@ -107,8 +107,9 @@ export type SystemState = {
   currentClock: number;
   instructionHistory: InstructionHistoryEntry[];
   instructions: string[];
+  memory: number[];
   cache: {
-    [key: number]: number;
+    [blockIndex: number]: CacheBlock;
   };
   fpRegisters: {
     [key: number]: RegisterFileEntry;
@@ -120,4 +121,8 @@ export type SystemState = {
     [key in InstructionType]: number;
   };
   notes: string[];
+};
+export type CacheBlock = {
+  valid: boolean;
+  data: number[];
 };

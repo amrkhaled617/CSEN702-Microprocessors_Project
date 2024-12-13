@@ -246,68 +246,68 @@ export function SystemSettingsView({
             )
           )}
 
-          <Stack direction="row" spacing={1} justifyContent="space-between">
-            <Typography variant="h6">Cache Initial Values</Typography>
-            <Button
-              variant="contained"
-              onClick={() =>
-                setCacheInitialValues((values) => [
-                  ...values,
-                  { address: 0, value: 0 },
-                ])
-              }
-            >
-              Add
-            </Button>
-          </Stack>
-          {cacheInitialValues.map(({ address, value }, index) => (
-            <Stack direction="row" spacing={1} key={index}>
-              <TextField
-                type="number"
-                value={address}
-                label={`Address`}
-                fullWidth
-                onChange={(e) =>
-                  setCacheInitialValues((values) => [
-                    ...values.slice(0, index),
-                    {
-                      address: +e.target.value,
-                      value,
-                    },
-                    ...values.slice(index + 1),
-                  ])
-                }
-              />
-              <TextField
-                type="number"
-                value={value}
-                label={`Value`}
-                fullWidth
-                onChange={(e) =>
-                  setCacheInitialValues((values) => [
-                    ...values.slice(0, index),
-                    {
-                      address,
-                      value: +e.target.value,
-                    },
-                    ...values.slice(index + 1),
-                  ])
-                }
-              />
-              <Button
-                variant="contained"
-                onClick={() =>
-                  setCacheInitialValues((values) => [
-                    ...values.slice(0, index),
-                    ...values.slice(index + 1),
-                  ])
-                }
-                color="error"
-              >
-                Delete
-              </Button>
-            </Stack>
-          ))}
+<Stack direction="row" spacing={1} justifyContent="space-between">
+  <Typography variant="h6">Cache Initial Values</Typography>
+  <Button
+    variant="contained"
+    onClick={() =>
+      setCacheInitialValues((values) => [
+        ...values,
+        { address: 0, value: 0 },
+      ])
+    }
+  >
+    Add
+  </Button>
+</Stack>
+{cacheInitialValues.map(({ address, value }, index) => (
+  <Stack direction="row" spacing={1} key={index}>
+    <TextField
+      type="number"
+      value={address}
+      label={`Address`}
+      fullWidth
+      onChange={(e) =>
+        setCacheInitialValues((values) => [
+          ...values.slice(0, index),
+          {
+            address: +e.target.value,
+            value,
+          },
+          ...values.slice(index + 1),
+        ])
+      }
+    />
+    <TextField
+      type="number"
+      value={value}
+      label={`Value`}
+      fullWidth
+      onChange={(e) =>
+        setCacheInitialValues((values) => [
+          ...values.slice(0, index),
+          {
+            address,
+            value: +e.target.value,
+          },
+          ...values.slice(index + 1),
+        ])
+      }
+    />
+    <Button
+      variant="contained"
+      onClick={() =>
+        setCacheInitialValues((values) => [
+          ...values.slice(0, index),
+          ...values.slice(index + 1),
+        ])
+      }
+      color="error"
+    >
+      Delete
+    </Button>
+  </Stack>
+))}
 
           <Button
             variant="contained"

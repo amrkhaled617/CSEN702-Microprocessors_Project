@@ -6,7 +6,25 @@ import {
   SystemSettings,
   SystemState,
 } from "./types";
+function storeValueInMemory(memory: number[], address: number, value: number) {
+  const blockIndex = Math.floor(address / 4) * 4; // Align to the start of a 4-byte block
 
+  memory[blockIndex] = value & 0xFF; // Least significant byte
+  memory[blockIndex + 1] = (value >> 8) & 0xFF;
+  memory[blockIndex + 2] = (value >> 16) & 0xFF;
+  memory[blockIndex + 3] = (value >> 24) & 0xFF; // Most significant byte
+}
+
+function loadValueFromMemory(memory: number[], address: number): number {
+  const blockIndex = Math.floor(address / 4) * 4; // Align to the start of a 4-byte block
+
+  return (
+    (memory[blockIndex] & 0xFF) |
+    ((memory[blockIndex + 1] & 0xFF) << 8) |
+    ((memory[blockIndex + 2] & 0xFF) << 16) |
+    ((memory[blockIndex + 3] & 0xFF) << 24)
+  );
+}
 export function generateSystemState(
   systemSettings: SystemSettings
 ): SystemState {
@@ -19,12 +37,18 @@ export function generateSystemState(
     currentClock: 0,
     instructionHistory: [],
     instructions: systemSettings.code.split("\n"),
+    memory: new Array(1024).fill(0),
     cache: {},
     fpRegisters: {},
     intRegisters: {},
     notes: [],
     latencies: systemSettings.latencies,
   };
+  const testBlockIndex = 0; // Example block index
+  const testBlockValue = 4;
+  for (let i = 0; i < 6; i++) {
+    systemState.memory[testBlockIndex * 4 + i] = testBlockValue;
+  }
 
   for (let i = 0; i < systemSettings.numOfAdderReservationStations; i++) {
     systemState.adderReservationStations.push({
@@ -90,7 +114,18 @@ export function generateSystemState(
   }
 
   for (const { address, value } of systemSettings.cacheInitialValues) {
-    systemState.cache[address] = value;
+    const blockIndex = Math.floor(address / 4);
+    const blockOffset = address % 4; 
+  
+    if (!systemState.cache[blockIndex]) {
+      systemState.cache[blockIndex] = {
+        valid: false,
+        data: new Array(6).fill(0),
+      };
+    }
+  
+    systemState.cache[blockIndex].data[blockOffset] = value;
+    systemState.cache[blockIndex].valid = true;
   }
 
   for (const {
@@ -359,13 +394,21 @@ function executeStage(newState: SystemState) {
     const { instructionType } = parseInstruction(instruction);
     let latency: number | null = null;
   
-    if (
-      instructionType === InstructionType.S_D ||
-      instructionType === InstructionType.SD ||
-      instructionType === InstructionType.S_S ||
-      instructionType === InstructionType.SW
-    ) {
-      latency = newState.latencies[InstructionType.S_D]; // Assuming all store instructions have the same latency
+    switch (instructionType) {
+      case InstructionType.S_D:
+        latency = newState.latencies[InstructionType.S_D];
+        break;
+      case InstructionType.SD:
+        latency = newState.latencies[InstructionType.SD];
+        break;
+      case InstructionType.S_S:
+        latency = newState.latencies[InstructionType.S_S];
+        break;
+      case InstructionType.SW:
+        latency = newState.latencies[InstructionType.SW];
+        break;
+      default:
+        throw new Error("Unknown store instruction type");
     }
   
     if (latency === null) continue; // Skip if latency is not set
@@ -381,7 +424,25 @@ function executeStage(newState: SystemState) {
     }
   
     if (rs.timeRemaining === 0) {
-      newState.cache[rs.address] = rs.v;
+      const blockIndex = Math.floor(rs.address / 4);
+      const blockOffset = rs.address % 4;
+      if (!newState.cache[blockIndex]) {
+        newState.cache[blockIndex] = {
+          valid: false,
+          data: new Array(6).fill(0),
+        };
+      }
+      if (newState.cache[blockIndex].valid) {
+        storeValueInMemory(newState.cache[blockIndex].data, blockOffset, rs.v);
+      } else {
+        // Cache miss, load block from memory
+        for (let i = 0; i < 4; i++) {
+          newState.cache[blockIndex].data[i] = newState.memory[blockIndex * 4 + i];
+        }
+        newState.cache[blockIndex].valid = true;
+        storeValueInMemory(newState.cache[blockIndex].data, blockOffset, rs.v);
+      }
+      storeValueInMemory(newState.memory, rs.address, rs.v);
     }
   }
 
@@ -395,13 +456,21 @@ function executeStage(newState: SystemState) {
     const { instructionType } = parseInstruction(instruction);
     let latency: number | null = null;
   
-    if (
-      instructionType === InstructionType.L_D ||
-      instructionType === InstructionType.LD ||
-      instructionType === InstructionType.L_S ||
-      instructionType === InstructionType.LW
-    ) {
-      latency = newState.latencies[InstructionType.L_D]; // Assuming all load instructions have the same latency
+    switch (instructionType) {
+      case InstructionType.L_D:
+        latency = newState.latencies[InstructionType.L_D];
+        break;
+      case InstructionType.LD:
+        latency = newState.latencies[InstructionType.LD];
+        break;
+      case InstructionType.L_S:
+        latency = newState.latencies[InstructionType.L_S];
+        break;
+      case InstructionType.LW:
+        latency = newState.latencies[InstructionType.LW];
+        break;
+      default:
+        throw new Error("Unknown load instruction type");
     }
   
     if (latency === null) continue; // Skip if latency is not set
@@ -417,7 +486,25 @@ function executeStage(newState: SystemState) {
     }
   
     if (rs.timeRemaining === 0) {
-      rs.result = newState.cache[rs.address] ?? 0;
+      const blockIndex = Math.floor(rs.address / 4);
+      const blockOffset = rs.address % 4;
+      if (!newState.cache[blockIndex]) {
+        newState.cache[blockIndex] = {
+          valid: false,
+          data: new Array(6).fill(0),
+        };
+      }
+      if (newState.cache[blockIndex].valid) {
+        rs.result = loadValueFromMemory(newState.cache[blockIndex].data, blockOffset);
+      } else {
+        // Cache miss, load block from memory
+        for (let i = 0; i < 4; i++) {
+          newState.cache[blockIndex].data[i] = newState.memory[blockIndex * 4 + i];
+        }
+        newState.cache[blockIndex].valid = true;
+        rs.result = loadValueFromMemory(newState.cache[blockIndex].data, blockOffset);
+        newState.notes.push(`Compulsory miss at address ${rs.address}`);
+      }
     }
   }
 }
