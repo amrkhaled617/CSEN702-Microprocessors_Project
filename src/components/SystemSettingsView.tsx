@@ -136,7 +136,7 @@ export function SystemSettingsView({
           ))}
 
           <div className="d-flex flex-row">
-            <h6>FP Register File Initial Values</h6>
+            <h6>Add Floating point register</h6>
             <button
               className="btn btn-primary"
               onClick={() =>
@@ -201,7 +201,7 @@ export function SystemSettingsView({
           ))}
 
           <div className="d-flex flex-row ">
-            <h6>Int Register File Initial Values</h6>
+            <h6>Add integer registers</h6>
             <button
               className="btn btn-primary"
               onClick={() =>
