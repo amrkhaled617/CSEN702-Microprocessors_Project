@@ -570,7 +570,6 @@ function executeStage(newState: SystemState) {
 }
 
 function writeResultStage(newState: SystemState) {
-  // Reset store buffer that finished
   for (const rs of newState.storeBuffers) {
     if (rs.busy && rs.timeRemaining === 0) {
       rs.busy = false;
@@ -582,7 +581,6 @@ function writeResultStage(newState: SystemState) {
     }
   }
 
-  // Reset BNEZ reservation station that finished
   for (const rs of newState.adderReservationStations) {
     if (rs.busy && rs.timeRemaining === 0 && (rs.op === InstructionType.BNEZ || rs.op === InstructionType.BEQ || rs.op === InstructionType.BNE)) {
       rs.busy = false;
